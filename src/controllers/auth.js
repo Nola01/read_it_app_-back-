@@ -1,13 +1,22 @@
-const {response} = require('express')
+const {response} = require('express');
+const {validationResult} = require('express-validator');
 
 const register = (req, res = response) => {
-    const {name, surname, password, email, role, pin} = req.body
+    const {name, password, email, role, pin} = req.body
+    const errors = validationResult(req);
+    console.log(errors);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            ok: false,
+            msg: errors.mapped()
+        })
+    }
 
     return res.json({
         ok: true,
         msg: "register",
         name, 
-        surname, 
         password, 
         email, 
         role, 
