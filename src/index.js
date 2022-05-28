@@ -1,16 +1,19 @@
 const express = require('express');
+require('dotenv').config()
+const auth = require('./routes/auth')
+
+// Create server
 const app = express();
 
-// Settings
-app.set('port', process.env.PORT || 3000);
-
-// Middlewares
+// Allow read and write in json
 app.use(express.json());
 
-// Routes
-
+// Auth route
+app.use('/api/user', auth)
 
 // Starting the server
-app.listen(app.get('port'), () => {
-    console.log('Servidor en puerto', app.get('port'));
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
+    console.log(`Servidor en puerto ${PORT}`);
 })
