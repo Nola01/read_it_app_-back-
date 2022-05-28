@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config()
 const auth = require('./routes/auth');
-const db = require('./database/db-config')
+const queries = require('./database/queries')
 
 // Create server
 const app = express();
@@ -11,10 +11,10 @@ const app = express();
 app.use(express.json());
 
 // Auth route
-app.use('/api/user', auth)
+app.use('/api/auth', auth)
 
 // Database
-app.use('/users', db)
+app.use('/api', queries)
 
 // Starting the server
 const PORT = process.env.PORT || 3000

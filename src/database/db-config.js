@@ -1,8 +1,6 @@
 const mysql = require('mysql');
-const { Router } = require('express');
 
-const router = Router();
-
+// config
 const db = mysql.createPool({
     connectionLimit : 10,
     host: 'localhost',
@@ -13,23 +11,9 @@ const db = mysql.createPool({
 })
 
 
-router.get('/', (req, res) => {
-    db.getConnection((err, connection) => {
-    if (err) throw err
-    console.log('Conectado a la bd');
 
-    connection.query('Select * from test', (err, rows) => {
-        connection.release()
 
-        if(!err) {
-            res.send(rows)
-        } else {
-            console.log(err);
-        }
-    })
-})
-})
+module.exports = db
 
-module.exports = router;
 
 
