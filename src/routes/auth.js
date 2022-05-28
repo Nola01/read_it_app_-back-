@@ -8,8 +8,7 @@ router.get('/', (req, res) => {
     res.send('Hello World')
 })
 
-router.post(
-    '/register', 
+router.post('/register', 
     [
         check('name', 'El nombre no puede estar vacío').notEmpty(),
         check('email', 'El correo electrónico no es válido').isEmail(),
@@ -18,6 +17,11 @@ router.post(
     ], 
     register)
 
-router.post('/login', login)
+router.post('/login',
+    [
+        check('email', 'El correo electrónico no es válido').isEmail(),
+        check('password', 'La contraseña debe tener al menos 8 caracteres').isLength({min:8}),
+    ], 
+    login)
 
 module.exports = router;

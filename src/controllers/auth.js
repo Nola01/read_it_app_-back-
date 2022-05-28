@@ -26,6 +26,16 @@ const register = (req, res = response) => {
 
 const login = (req, res = response) => {
     const {email, password} = req.body
+    const errors = validationResult(req);
+    console.log(errors);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            ok: false,
+            msg: errors.mapped()
+        })
+    }
+    
     res.json({
         ok: true,
         msg: "ok login",
