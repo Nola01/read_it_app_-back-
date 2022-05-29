@@ -2,6 +2,9 @@
 const db = require('../database/db-config');
 const User = require('../entities/user');
 
+var bcrypt = require('bcrypt')
+const salt = bcrypt.genSaltSync(10)
+
 const getAllUsers = (req, res) => {
     db.getConnection((err, connection) => {
         if (err) {
@@ -49,7 +52,6 @@ const getUserByEmail = async (req, res) => {
             connection.release();
 
             if(!err) {
-                user = users
                 console.log(users);
                 res.status(200).json(users);
                 console.log('Obtener usuario por email');
@@ -72,13 +74,14 @@ const createUser = (req, res) => {
 
     const newUser = new User(name, password, email, role, pin);
 
+    newUser.password = bcrypt.hashSync(password, salt);
+
     db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
                 msg: "Error al conectar con el servidor",
             })
-            return;
         };
 
         connection.query('INSERT INTO users SET ?', newUser, (err, users) => {
@@ -87,7 +90,7 @@ const createUser = (req, res) => {
             if(!err) {
                 // res.send(`Usuario ${newUser.name} añadido`);
                 console.log('Crear nuevo usuario');
-                res.status(201).json({
+                return res.status(201).json({
                     ok: true,
                     msg: "register",
                     name, 
@@ -98,7 +101,7 @@ const createUser = (req, res) => {
                 })
             } else {
                 console.log(err);
-                res.status(404).json({
+                return res.status(404).json({
                     ok: false,
                     msg: "Error al registrar usuario",
                 })
