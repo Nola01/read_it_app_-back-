@@ -35,7 +35,7 @@ const getAllUsers = (req, res) => {
     })
 }
 
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, token) => {
 
     const {email, password} = req.body;
 
@@ -66,7 +66,8 @@ const loginUser = async (req, res) => {
                         ok: true,
                         msg: "login",
                         email: user.email,
-                        password: user.password
+                        password: user.password,
+                        token
                     }) 
 
                 } else {

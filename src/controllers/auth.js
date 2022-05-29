@@ -20,10 +20,27 @@ const register = async (req, res = response) => {
     
 }
 
-const login = (req, res = response) => {
+const login = async (req, res = response) => {
 
-    loginUser(req, res);
+    const {name, password, email, role, pin} = req.body;
+
+    const user = new User(name, password, email, role, pin);
+
+    // generate token
+    const token = await generateJWT(user.id, user.name);
+
+    loginUser(req, res, token);
     
 }
 
-module.exports = {register, login}
+const resetToken = async (req, res = response) => {
+    const {id, name} = req.body;
+    const token = await generateJWT(id, name);
+    return res.json({
+        ok: true,
+        msg: 'Revalidando token',
+        token
+    })
+}
+
+module.exports = {register, login, resetToken}
