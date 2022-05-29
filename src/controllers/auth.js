@@ -1,14 +1,14 @@
 const {response} = require('express');
 const db = require('../database/db-config');
 const User = require('../entities/user');
-const {createUser} = require('./user')
+const {createUser, getUserByEmail} = require('./user')
 
 const register = (req, res = response) => {
     const {name, password, email, role, pin} = req.body;
 
-    const newUser = new User(name, password, email, role, pin);
+    getUserByEmail(req, res)
 
-    createUser(req, res);
+    // createUser(req, res);
 
     
 }

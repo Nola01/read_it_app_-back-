@@ -16,7 +16,7 @@ const getAllUsers = (req, res) => {
             connection.release();
 
             if(!err) {
-                res.send(users);
+                res.status(200).send(users);    
                 console.log('Obtener usuarios de la bd');
             } else {
                 console.log(err);
@@ -27,12 +27,45 @@ const getAllUsers = (req, res) => {
                 
             }
 
-            connection.end();
+            // connection.end();
         })
     })
 }
 
+const getUserByEmail = async (req, res) => {
 
+    const {email} = req.body;
+
+    db.getConnection((err, connection) => {
+        if (err) {
+            res.status(500).json({
+                ok: false,
+                msg: "Error al conectar con el servidor",
+            })
+            return;
+        };
+
+        connection.query('SELECT * FROM users WHERE email = ?', email, (err, users) => {
+            connection.release();
+
+            if(!err) {
+                user = users
+                console.log(users);
+                res.status(200).json(users);
+                console.log('Obtener usuario por email');
+            } else {
+                console.log(err);
+                return res.status(404).json({
+                    ok: false,
+                    msg: "Error al encontrar usuario por email",
+                })
+            }
+
+            // connection.end();
+        })
+    })
+
+}
 
 const createUser = (req, res) => {
     const {name, password, email, role, pin} = req.body;
@@ -76,4 +109,4 @@ const createUser = (req, res) => {
     })
 }
 
-module.exports = {getAllUsers, createUser};
+module.exports = {getAllUsers, getUserByEmail, createUser};
