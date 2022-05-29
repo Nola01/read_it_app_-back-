@@ -1,17 +1,17 @@
-const { Router } = require('express');
-const db = require('../database/db-config')
-const User = require('../entities/user')
+
+const db = require('../database/db-config');
+const User = require('../entities/user');
 
 const getAllUsers = (req, res) => {
     db.getConnection((err, connection) => {
-        if (err) throw err
-        console.log('Get all users from db');
+        if (err) throw err;
 
-        connection.query('Select * from users', (err, users) => {
-            connection.release()
+        connection.query('SELECT * FROM users', (err, users) => {
+            connection.release();
 
             if(!err) {
-                res.send(users)
+                res.send(users);
+                console.log('Obtener usuarios de la bd');
             } else {
                 console.log(err);
             }
@@ -19,4 +19,21 @@ const getAllUsers = (req, res) => {
     })
 }
 
-module.exports = {getAllUsers};
+const createUser = (newUser) => {
+    db.getConnection((err, connection) => {
+        if (err) throw err;
+
+        connection.query('INSERT INTO users SET ?', newUser, (err, users) => {
+            connection.release();
+
+            if(!err) {
+                // res.send(`Usuario ${newUser.name} añadido`);
+                console.log('Crear nuevo usuario');
+            } else {
+                console.log(err);
+            }
+        })
+    })
+}
+
+module.exports = {getAllUsers, createUser};
