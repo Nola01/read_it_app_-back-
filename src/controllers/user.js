@@ -6,6 +6,7 @@ var bcrypt = require('bcrypt')
 const salt = bcrypt.genSaltSync(10)
 
 const getAllUsers = (req, res) => {
+    
     db.getConnection((err, connection) => {
         if (err) {
             res.status(500).json({
@@ -39,6 +40,8 @@ const getUserByEmail = async (req, res) => {
 
     const {email} = req.body;
 
+    let user = [];
+
     db.getConnection((err, connection) => {
         if (err) {
             res.status(500).json({
@@ -52,6 +55,7 @@ const getUserByEmail = async (req, res) => {
             connection.release();
 
             if(!err) {
+                user = users
                 console.log(users);
                 res.status(200).json(users);
                 console.log('Obtener usuario por email');
@@ -66,6 +70,8 @@ const getUserByEmail = async (req, res) => {
             // connection.end();
         })
     })
+
+    return user;
 
 }
 
@@ -84,31 +90,57 @@ const createUser = (req, res) => {
             })
         };
 
-        connection.query('INSERT INTO users SET ?', newUser, (err, users) => {
+        connection.query('SELECT * FROM users WHERE email = ?', email, (err, users) => {
             connection.release();
-
+            // console.log('Select ', users);
             if(!err) {
-                // res.send(`Usuario ${newUser.name} añadido`);
-                console.log('Crear nuevo usuario');
-                return res.status(201).json({
-                    ok: true,
-                    msg: "register",
-                    name, 
-                    password, 
-                    email, 
-                    role, 
-                    pin
-                })
+                if(users.length === 0) {
+                    connection.query('INSERT INTO users SET ?', newUser, (err, users) => {
+                        // connection.release();
+            
+                        if(!err) {
+                            // console.log(users);
+                            // res.send(`Usuario ${newUser.name} añadido`);
+                            console.log('Crear nuevo usuario');
+                            return res.status(201).json({
+                                ok: true,
+                                msg: "register",
+                                name, 
+                                password, 
+                                email, 
+                                role, 
+                                pin
+                            })
+                        } else {
+                            console.log(err);
+                            return res.status(404).json({
+                                ok: false,
+                                msg: "Error al registrar usuario",
+                            })
+                        }
+            
+                        // connection.end();
+                    })
+                } else {
+                    return res.status(404).json({
+                        ok: false,
+                        msg: "El usuario ya está registrado",
+                    })
+                }
             } else {
                 console.log(err);
                 return res.status(404).json({
                     ok: false,
-                    msg: "Error al registrar usuario",
+                    msg: "Error al encontrar usuario por email",
                 })
             }
 
             // connection.end();
         })
+
+        
+        
+        
     })
 }
 

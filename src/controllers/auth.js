@@ -9,10 +9,6 @@ const {createUser, getUserByEmail} = require('./user')
 const register = (req, res = response) => {
     const {name, password, email, role, pin} = req.body;
 
-    
-
-    // getUserByEmail(req, res)
-
     createUser(req, res);
 
     

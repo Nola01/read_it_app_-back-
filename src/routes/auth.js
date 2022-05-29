@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const {register, login} = require('../controllers/auth');
+const {createUser} = require('../controllers/user');
 const {check} = require('express-validator');
 const {validateFields} = require('../middleware/validator');
 
@@ -19,7 +20,7 @@ router.post('/register',
         check('role', 'Debe seleccionar un rol (alumno o profesor)').notEmpty().matches(/alumno|profesor/),
         validateFields
     ],
-    register)
+    createUser)
 
 router.post('/login',
     [
