@@ -20,7 +20,7 @@ router.post('/register',
         check('role', 'Debe seleccionar un rol (alumno o profesor)').notEmpty().matches(/alumno|profesor/),
         validateFields
     ],
-    createUser)
+    register)
 
 router.post('/login',
     [

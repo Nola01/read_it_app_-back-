@@ -9,11 +9,10 @@ const getAllUsers = (req, res) => {
     
     db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
                 msg: "Error al conectar con el servidor",
             })
-            return;
         };
 
         connection.query('SELECT * FROM users', (err, users) => {
@@ -24,7 +23,7 @@ const getAllUsers = (req, res) => {
                 console.log('Obtener usuarios de la bd');
             } else {
                 console.log(err);
-                res.status(404).json({
+                return res.status(404).json({
                     ok: false,
                     msg: "Error al encontrar usuarios",
                 })
@@ -36,29 +35,45 @@ const getAllUsers = (req, res) => {
     })
 }
 
-const getUserByEmail = async (req, res) => {
+const loginUser = async (req, res) => {
 
-    const {email} = req.body;
-
-    let user = [];
+    const {email, password} = req.body;
 
     db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
                 msg: "Error al conectar con el servidor",
             })
-            return;
         };
 
         connection.query('SELECT * FROM users WHERE email = ?', email, (err, users) => {
             connection.release();
 
             if(!err) {
-                user = users
-                console.log(users);
-                res.status(200).json(users);
-                console.log('Obtener usuario por email');
+                // verify there is a user with this email in the database
+                if(users.length !== 0) {
+                    const user = users[0];
+
+                    if(! bcrypt.compareSync(password, user.password)) {
+                        return res.status(400).json({
+                            ok: false,
+                            msg: "Contraseña incorrecta",
+                        })
+                    }
+                    return res.status(200).json({
+                        ok: true,
+                        msg: "login",
+                        email: user.email,
+                        password: user.password
+                    }) 
+
+                } else {
+                    return res.status(404).json({
+                        ok: false,
+                        msg: "El usuario no está registrado",
+                    })
+                }
             } else {
                 console.log(err);
                 return res.status(404).json({
@@ -70,8 +85,6 @@ const getUserByEmail = async (req, res) => {
             // connection.end();
         })
     })
-
-    return user;
 
 }
 
@@ -96,7 +109,6 @@ const createUser = (req, res) => {
             if(!err) {
                 if(users.length === 0) {
                     connection.query('INSERT INTO users SET ?', newUser, (err, users) => {
-                        // connection.release();
             
                         if(!err) {
                             // console.log(users);
@@ -122,7 +134,7 @@ const createUser = (req, res) => {
                         // connection.end();
                     })
                 } else {
-                    return res.status(404).json({
+                    return res.status(400).json({
                         ok: false,
                         msg: "El usuario ya está registrado",
                     })
@@ -144,4 +156,4 @@ const createUser = (req, res) => {
     })
 }
 
-module.exports = {getAllUsers, getUserByEmail, createUser};
+module.exports = {getAllUsers, loginUser, createUser};

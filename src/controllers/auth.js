@@ -4,25 +4,18 @@ const User = require('../entities/user');
 
 
 
-const {createUser, getUserByEmail} = require('./user')
+const {createUser, loginUser} = require('./user')
 
 const register = (req, res = response) => {
-    const {name, password, email, role, pin} = req.body;
 
     createUser(req, res);
-
     
 }
 
 const login = (req, res = response) => {
-    const {email, password} = req.body;
+
+    loginUser(req, res);
     
-    return res.json({
-        ok: true,
-        msg: "ok login",
-        email,
-        password
-    })
 }
 
 module.exports = {register, login}
