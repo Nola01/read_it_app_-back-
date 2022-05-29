@@ -8,17 +8,9 @@ const register = (req, res = response) => {
 
     const newUser = new User(name, password, email, role, pin);
 
-    createUser(newUser);
+    createUser(req, res);
 
-    return res.json({
-        ok: true,
-        msg: "register",
-        name, 
-        password, 
-        email, 
-        role, 
-        pin
-    })
+    
 }
 
 const login = (req, res = response) => {
