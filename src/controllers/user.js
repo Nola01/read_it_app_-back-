@@ -55,6 +55,7 @@ const loginUser = async (req, res) => {
                 if(users.length !== 0) {
                     const user = users[0];
 
+                    // verify password is correct
                     if(! bcrypt.compareSync(password, user.password)) {
                         return res.status(400).json({
                             ok: false,
@@ -88,7 +89,7 @@ const loginUser = async (req, res) => {
 
 }
 
-const createUser = (req, res) => {
+const createUser = (req, res, token) => {
     const {name, password, email, role, pin} = req.body;
 
     const newUser = new User(name, password, email, role, pin);
@@ -121,7 +122,8 @@ const createUser = (req, res) => {
                                 password, 
                                 email, 
                                 role, 
-                                pin
+                                pin,
+                                token
                             })
                         } else {
                             console.log(err);
