@@ -9,15 +9,16 @@ const getAllUsers = async (req, res) => {
 
     db.select('*').from('users')
     .then(
-        (resp) => {
-            return res.status(200).send(resp)
+        (users) => {
+            return res.status(200).send(users)
         }
     )
-    .catch((err) => res.status(500).json({
+    .catch((err) => {
+        return res.status(500).json({
             ok: false,
             msg: "Error en el servidor",
         })
-    )
+    })
     
 }
 
@@ -25,52 +26,41 @@ const loginUser = async (req, res, token) => {
 
     const {email, password} = req.body;
 
-    db.getConnection((err, connection) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                msg: "Error al conectar con el servidor",
-            })
-        };
+    db.select('*').from('users').where({email})
+    .then(
+        (users) => {
+            // console.log(users);
+            // verify there is a user with this email in the database
+            if(users.length !== 0) {
+                const user = users[0];
 
-        connection.query('SELECT * FROM users WHERE email = ?', email, (err, users) => {
-            connection.release();
-
-            if(!err) {
-                // verify there is a user with this email in the database
-                if(users.length !== 0) {
-                    const user = users[0];
-
-                    // verify password is correct
-                    if(! bcrypt.compareSync(password, user.password)) {
-                        return res.status(400).json({
-                            ok: false,
-                            msg: "Contraseña incorrecta",
-                        })
-                    }
-                    return res.status(200).json({
-                        ok: true,
-                        msg: "login",
-                        email: user.email,
-                        password: user.password,
-                        token
-                    }) 
-
-                } else {
-                    return res.status(404).json({
+                // verify password is correct
+                if(! bcrypt.compareSync(password, user.password)) {
+                    return res.status(401).json({
                         ok: false,
-                        msg: "El usuario no está registrado",
+                        msg: "Contraseña incorrecta",
                     })
                 }
+                return res.status(200).json({
+                    ok: true,
+                    msg: "Login correcto",
+                    email: user.email,
+                    password: user.password,
+                    token
+                }) 
             } else {
                 console.log(err);
                 return res.status(404).json({
                     ok: false,
-                    msg: "Error al encontrar usuario por email",
+                    msg: "Este correo electrónico no está registrado",
                 })
             }
-
-            // connection.end();
+        }
+    )
+    .catch((err) => {
+        return res.status(500).json({
+            ok: false,
+            msg: "Error en el servidor",
         })
     })
 
@@ -83,65 +73,40 @@ const createUser = (req, res, token) => {
 
     newUser.password = bcrypt.hashSync(password, salt);
 
-    db.getConnection((err, connection) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                msg: "Error al conectar con el servidor",
-            })
-        };
-
-        connection.query('SELECT * FROM users WHERE email = ?', email, (err, users) => {
-            connection.release();
-            // console.log('Select ', users);
-            if(!err) {
-                if(users.length === 0) {
-                    connection.query('INSERT INTO users SET ?', newUser, (err, users) => {
-            
-                        if(!err) {
-                            // console.log(users);
-                            // res.send(`Usuario ${newUser.name} añadido`);
-                            console.log('Crear nuevo usuario');
-                            return res.status(201).json({
-                                ok: true,
-                                msg: "register",
-                                name, 
-                                password, 
-                                email, 
-                                role, 
-                                pin,
-                                token
-                            })
-                        } else {
-                            console.log(err);
-                            return res.status(404).json({
-                                ok: false,
-                                msg: "Error al registrar usuario",
-                            })
-                        }
-            
-                        // connection.end();
-                    })
-                } else {
+    db.select('*').from('users').where({email})
+    .then(
+        (users) => {
+            if(users.length === 0) {
+                console.log(newUser);
+                db('users').insert(newUser)
+                .then(
+                    (id) => {
+                        return res.status(201).json({
+                            ok: false,
+                            msg: "Usuario registrado",
+                            id
+                        })
+                    }
+                )
+                .catch((err) => {
                     return res.status(400).json({
                         ok: false,
-                        msg: "El usuario ya está registrado",
+                        msg: "Error al crear un nuevo usuario",
                     })
-                }
+                })
             } else {
-                console.log(err);
-                return res.status(404).json({
+                return res.status(400).json({
                     ok: false,
-                    msg: "Error al encontrar usuario por email",
+                    msg: "El usuario ya está registrado",
                 })
             }
-
-            // connection.end();
+        }
+    )
+    .catch((err) => {
+        return res.status(500).json({
+            ok: false,
+            msg: "Error en el servidor",
         })
-
-        
-        
-        
     })
 }
 
