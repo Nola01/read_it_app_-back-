@@ -1,7 +1,7 @@
 const db = require('../database/db-config');
 const Book = require('../entities/book');
 
-const getAllBooks = async (req, res) => {
+const getAllBooks = (req, res) => {
     db.select('*').from('books')
     .then(
         (books) => {
@@ -16,4 +16,10 @@ const getAllBooks = async (req, res) => {
     })
 }
 
-module.exports = {getAllBooks};
+const createBook = (req, res, token) => {
+    const {isbn, title, author, image} = req.body;
+
+    const newBook = new Book(isbn, title, author, image);
+}
+
+module.exports = {getAllBooks, createBook};

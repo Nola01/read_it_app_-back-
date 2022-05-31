@@ -99,7 +99,8 @@ const createUser = (req, res, token) => {
                         return res.status(201).json({
                             ok: false,
                             msg: "Usuario registrado",
-                            id
+                            id,
+                            token
                         })
                     }
                 )
