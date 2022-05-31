@@ -1,12 +1,13 @@
 const { response } = require('express');
 const {validationResult} = require('express-validator');
 const jwt = require('jsonwebtoken');
+const db = require('../database/db-config');
 
 const {getUserById} = require('../controllers/user')
 
 const validateFields = (req,res = response, next) => {
     const errors = validationResult(req);
-    console.log(errors);
+    // console.log(errors);
 
     if (!errors.isEmpty()) {
         return res.status(400).json({
@@ -27,32 +28,62 @@ const validateUser = (req, res = response, next) => {
         })
     }
     try {
-        let tokenId = '';
-        let tokenRole = '';
+        let tokenId;
+        let tokenRole;
         jwt.verify(token, process.env.PRIVATE_KEY, (err, token) => {
             //console.log(token)
             if (err) {
                 throw err
             }
-            req.id = token.id
+            // console.log(token.id_user);
+            req.id_user = token.id_user
             req.name = token.name
             req.role = token.role
             //console.log(token.name)
-            tokenId = token.id
+            // console.log(req.id);
+            tokenId = token.id_user
             tokenRole = token.role
             //console.log(tokenId);
         })
-        const user = getUserById(req, res);
-        console.log(user)
-        //console.log(tokenRole != 0)
-        if (!user || tokenRole.match('profesor')) {
-            return res.status(403).json({
+
+        console.log(tokenId);
+
+        db('users').where('id_user', tokenId)
+        .then(
+            (users) => {
+                if(users.length !== 0) {
+                    const user = users[0];
+                    console.log(user);
+
+                    if (!user || tokenRole.match('profesor')) {
+                        return res.status(403).json({
+                            ok: false,
+                            msg: 'Solo un usuario con rol profesor puede crear itinerarios y libros',
+                        })
+                    } 
+
+                    // return res.status(200).json({
+                    //     ok: true,
+                    //     msg: "Usuario correcto",
+                    // }) 
+
+                } else {
+                    return res.status(404).json({
+                        ok: false,
+                        msg: "El usuario no existe",
+                    })
+                }
+            }
+        )
+        .catch((err) => {
+            return res.status(500).json({
                 ok: false,
-                msg: 'Solo un usuario con rol profesor puede crear itinerarios y libros',
+                msg: "Error en el servidor",
             })
-        }
+        });
         
     } catch (error) {
+        // console.log(error);
         return res.status(401).json({
             ok: false,
             msg: 'Token erróneo',
