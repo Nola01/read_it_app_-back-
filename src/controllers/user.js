@@ -7,18 +7,32 @@ const salt = bcrypt.genSaltSync(10)
 
 const getAllUsers = async (req, res) => {
 
-    db.select('*').from('users')
-    .then(
-        (users) => {
-            return res.status(200).send(users)
-        }
-    )
-    .catch((err) => {
-        return res.status(500).json({
-            ok: false,
-            msg: "Error en el servidor",
+    // try {
+        // const db = createConnection();
+        
+        db.select('*').from('users')
+        .then(
+            (users) => {
+                return res.status(200).send(users)
+            }
+        )
+        .catch((err) => {
+            return res.status(500).json({
+                ok: false,
+                msg: "Error en el servidor",
+            })
         })
-    })
+        // .finally(() => {
+        //     db.destroy().then(() => {
+        //         console.log('Conexión cerrada');
+        //     });
+        // })
+    // } catch (error) {
+    //     return res.status(500).json({
+    //         ok: false,
+    //         msg: "Error al conectar con el servidor",
+    //     })
+    // }
     
 }
 
@@ -67,6 +81,7 @@ const loginUser = async (req, res, token) => {
 }
 
 const createUser = (req, res, token) => {
+
     const {name, password, email, role, pin} = req.body;
 
     const newUser = new User(name, password, email, role, pin);

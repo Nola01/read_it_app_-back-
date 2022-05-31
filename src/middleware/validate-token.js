@@ -9,15 +9,20 @@ const validateJWT = (req, res, next) => {
     if(!token) {
         return res.status(401).json({
             ok: 'false',
-            msg: 'No hay token de autorización'
+            msg: 'No existe token'
         })
     }
 
     // validation
     try {
-        const {id, name} = jwt.verify(token, process.env.PRIVATE_KEY);
-        req.id = id;
-        req.name = name;
+        jwt.verify(token, process.env.PRIVATE_KEY, (err, token) => {
+            //console.log(token)
+            if (err) {
+                throw err
+            }
+            req.id = token.id
+            req.name = token.name
+        })
     } catch (error) {
         return res.status(401).json({
             ok: 'false',
