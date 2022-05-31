@@ -1,6 +1,7 @@
 
 const db = require('../database/db-config');
 const User = require('../entities/user');
+const {generateJWT} = require('../helper/jwt');
 
 var bcrypt = require('bcrypt')
 const salt = bcrypt.genSaltSync(10)
@@ -44,7 +45,7 @@ const getUserById = (req, res) => {
         (users) => {
             if(users.length !== 0) {
                 const user = users[0];
-                return res.status(200).send(user);
+                return user;
             } else {
                 return res.status(404).json({
                     ok: false,
@@ -61,57 +62,64 @@ const getUserById = (req, res) => {
     });
 }
 
-const loginUser = async (req, res, token) => {
+
+
+const loginUser = async (req, res) => {
 
     const {email, password} = req.body;
 
-    db.select('*').from('users').where({email})
-    .then(
-        (users) => {
-            // console.log(users);
-            // verify there is a user with this email in the database
-            if(users.length !== 0) {
-                const user = users[0];
+    db('users').where('email', email)
+        .then(
+            async (users) => {
+                if(users.length !== 0) {
+                    const user = users[0];
+                    // generate token
+                    console.log(user);
+                    const token = await generateJWT(user.id_user, user.name, user.role);
 
-                // verify password is correct
-                if(! bcrypt.compareSync(password, user.password)) {
-                    return res.status(401).json({
+                    // verify password is correct
+                    if(! bcrypt.compareSync(password, user.password)) {
+                        return res.status(401).json({
+                            ok: false,
+                            msg: "Contraseña incorrecta",
+                        })
+                    }
+                    return res.status(200).json({
+                        ok: true,
+                        msg: "Login correcto",
+                        email: user.email,
+                        password: user.password,
+                        token
+                    }) 
+                } else {
+                    return res.status(500).json({
                         ok: false,
-                        msg: "Contraseña incorrecta",
+                        msg: "Este correo electrónico no está registrado",
                     })
                 }
-                return res.status(200).json({
-                    ok: true,
-                    msg: "Login correcto",
-                    email: user.email,
-                    password: user.password,
-                    token
-                }) 
-            } else {
-                console.log(err);
-                return res.status(404).json({
-                    ok: false,
-                    msg: "Este correo electrónico no está registrado",
-                })
             }
-        }
-    )
-    .catch((err) => {
-        return res.status(500).json({
-            ok: false,
-            msg: "Error en el servidor",
-        })
-    })
+        )
+        .catch((err) => {
+            return res.status(500).json({
+                ok: false,
+                msg: "Error en el servidor",
+            })
+        });
+    
+    
 
 }
 
-const createUser = (req, res, token) => {
+const createUser = async (req, res) => {
 
     const {name, password, email, role, pin} = req.body;
 
     const newUser = new User(name, password, email, role, pin);
 
     newUser.password = bcrypt.hashSync(password, salt);
+
+    // generate token
+    const token = await generateJWT(newUser.id_user, newUser.name, newUser.role);
 
     db.select('*').from('users').where({email})
     .then(
