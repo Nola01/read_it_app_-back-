@@ -5,7 +5,7 @@ const User = require('../entities/user');
 var bcrypt = require('bcrypt')
 const salt = bcrypt.genSaltSync(10)
 
-const getAllUsers = async (req, res) => {
+const getAllUsers = (req, res) => {
 
     // try {
         // const db = createConnection();
@@ -34,6 +34,31 @@ const getAllUsers = async (req, res) => {
     //     })
     // }
     
+}
+
+const getUserById = (req, res) => {
+    const {id} = req.params;
+
+    db('users').where('id_user', id)
+    .then(
+        (users) => {
+            if(users.length !== 0) {
+                const user = users[0];
+                return res.status(200).send(user);
+            } else {
+                return res.status(404).json({
+                    ok: false,
+                    msg: "El usuario no existe",
+                })
+            }
+        }
+    )
+    .catch((err) => {
+        return res.status(500).json({
+            ok: false,
+            msg: "Error en el servidor",
+        })
+    });
 }
 
 const loginUser = async (req, res, token) => {
@@ -126,4 +151,4 @@ const createUser = (req, res, token) => {
     })
 }
 
-module.exports = {getAllUsers, loginUser, createUser};
+module.exports = {getAllUsers, getUserById, loginUser, createUser};

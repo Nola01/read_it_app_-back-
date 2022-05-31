@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const {check} = require('express-validator');
 const {getAllBooks, createBook} = require('../controllers/book');
-const {validateFields} = require('../middleware/validator');
+const {validateFields, validateUser} = require('../middleware/validator');
 const {validateJWT} = require('../middleware/validate-token');
 
 const router = Router()
@@ -13,6 +13,7 @@ router.post('/new',
         check('title', 'Campo nombre no puede estar vacío').notEmpty(),
         validateFields
     ], 
+    validateUser,
     validateJWT, 
     createBook
 )
