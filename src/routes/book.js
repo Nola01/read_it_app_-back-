@@ -3,7 +3,7 @@ const {check} = require('express-validator');
 const {validateFields, validateUser} = require('../middleware/validator');
 const {validateJWT} = require('../middleware/validate-token');
 
-const {getAllBooks, createBook, deleteBook} = require('../controllers/book');
+const {getAllBooks, createBook, deleteBook, updateBook} = require('../controllers/book');
 
 const router = Router()
 
@@ -20,5 +20,7 @@ router.post('/new',
 )
 
 router.delete('/:id', validateUser, validateJWT, deleteBook)
+
+router.put('/:id', validateUser, validateJWT, updateBook)
 
 module.exports = router

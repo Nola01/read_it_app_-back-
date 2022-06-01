@@ -81,7 +81,7 @@ const loginUser = async (req, res) => {
                 if(users.length !== 0) {
                     const user = users[0];
                     // generate token
-                    console.log('Usuario ', user);
+                    // console.log('Usuario ', user);
                     const token = await generateJWT(user.id_user, user.name, user.role);
 
                     // verify password is correct

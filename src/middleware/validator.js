@@ -58,7 +58,7 @@ const validateUser = (req, res = response, next) => {
                     if (!user || tokenRole.match('alumno')) {
                         return res.status(403).json({
                             ok: false,
-                            msg: 'Solo un usuario con rol profesor puede crear itinerarios y libros',
+                            msg: 'Solo un usuario con rol administrador o profesor puede modificar itinerarios y libros',
                         })
                     } 
 

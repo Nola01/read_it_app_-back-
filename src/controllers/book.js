@@ -63,14 +63,14 @@ const deleteBook = (req, res) => {
 
     const {id} = req.params;
 
-    console.log('isbn', id);
+    // console.log('isbn', id);
 
     db('books').where('isbn', id)
     .then(
         (books) => {
             if(books.length !== 0) {
                 const book = books[0];
-                console.log(book);
+                // console.log(book);
                 db('books').where('isbn', book.isbn).del()
                 .then(
                     () => {
@@ -97,10 +97,59 @@ const deleteBook = (req, res) => {
     .catch((err) => {
         return res.status(500).json({
             ok: false,
-            msg: "Error en el servidor 123",
+            msg: "Error en el servidor",
             err
         })
     })
 }
 
-module.exports = {getAllBooks, createBook, deleteBook};
+const updateBook = (req, res) => {
+
+    const {id} = req.params;
+
+    const {title, author, image} = req.body;
+
+    const bookUpdate = new Book(id, title, author, image);
+
+    // console.log('isbn', id);
+
+    db('books').where('isbn', id)
+    .then(
+        (books) => {
+            if(books.length !== 0) {
+                const book = books[0];
+                // console.log(book);
+                db('books').where('isbn', book.isbn).update(bookUpdate)
+                .then(
+                    () => {
+                        return res.status(200).json({
+                            ok: false,
+                            msg: "Libro actualizado",
+                        })
+                    }
+                )
+                .catch((err) => {
+                    return res.status(400).json({
+                        ok: false,
+                        msg: "Error al actualizar libro",
+                    })
+                })
+            } else {
+                return res.status(400).json({
+                    ok: false,
+                    msg: "El libro que quiere actualizar no existe",
+                })
+            }
+        }
+    )
+    .catch((err) => {
+        return res.status(500).json({
+            ok: false,
+            msg: "Error en el servidor",
+            err
+        })
+    })
+    
+}
+
+module.exports = {getAllBooks, createBook, deleteBook, updateBook};
