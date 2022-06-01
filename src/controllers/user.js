@@ -44,8 +44,15 @@ const getUserById = (req, res) => {
     .then(
         (users) => {
             if(users.length !== 0) {
-                const user = users[0];
-                return user;
+                const {name, email, role, pin} = users[0];
+                return res.status(200).json({
+                    ok: true,
+                    msg: 'Usuario por id',
+                    name,
+                    email,
+                    role,
+                    pin
+                });
             } else {
                 return res.status(404).json({
                     ok: false,
@@ -77,7 +84,6 @@ const loginUser = async (req, res) => {
                     console.log('Usuario ', user);
                     const token = await generateJWT(user.id_user, user.name, user.role);
 
-                    console.log('error');
                     // verify password is correct
                     if(! bcrypt.compareSync(password, user.password)) {
                         return res.status(401).json({
@@ -85,13 +91,13 @@ const loginUser = async (req, res) => {
                             msg: "Contraseña incorrecta",
                         })
                     }
-                    // return res.status(200).json({
-                    //     ok: true,
-                    //     msg: "Login correcto",
-                    //     email: user.email,
-                    //     password: user.password,
-                    //     token
-                    // }) 
+                    return res.status(200).json({
+                        ok: true,
+                        msg: "Login correcto",
+                        email: user.email,
+                        password: user.password,
+                        token
+                    }) 
                 } else {
                     return res.status(500).json({
                         ok: false,

@@ -16,7 +16,7 @@ const getAllBooks = (req, res) => {
     })
 }
 
-const createBook = (req, res, token) => {
+const createBook = (req, res) => {
     const {isbn, title, author, image} = req.body;
 
     const newBook = new Book(isbn, title, author, image);
@@ -34,7 +34,6 @@ const createBook = (req, res, token) => {
                         return res.status(201).json({
                             ok: false,
                             msg: "Libro registrado",
-                            token
                         })
                     }
                 )
@@ -60,4 +59,48 @@ const createBook = (req, res, token) => {
     })
 }
 
-module.exports = {getAllBooks, createBook};
+const deleteBook = (req, res) => {
+
+    const {id} = req.params;
+
+    console.log('isbn', id);
+
+    db('books').where('isbn', id)
+    .then(
+        (books) => {
+            if(books.length !== 0) {
+                const book = books[0];
+                console.log(book);
+                db('books').where('isbn', book.isbn).del()
+                .then(
+                    () => {
+                        return res.status(200).json({
+                            ok: false,
+                            msg: "Libro borrado",
+                        })
+                    }
+                )
+                .catch((err) => {
+                    return res.status(400).json({
+                        ok: false,
+                        msg: "Error al eliminar libro",
+                    })
+                })
+            } else {
+                return res.status(400).json({
+                    ok: false,
+                    msg: "El libro que quiere borrar no existe",
+                })
+            }
+        }
+    )
+    .catch((err) => {
+        return res.status(500).json({
+            ok: false,
+            msg: "Error en el servidor 123",
+            err
+        })
+    })
+}
+
+module.exports = {getAllBooks, createBook, deleteBook};

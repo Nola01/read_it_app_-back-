@@ -1,8 +1,9 @@
 const { Router } = require('express');
 const {check} = require('express-validator');
-const {getAllBooks, createBook} = require('../controllers/book');
 const {validateFields, validateUser} = require('../middleware/validator');
 const {validateJWT} = require('../middleware/validate-token');
+
+const {getAllBooks, createBook, deleteBook} = require('../controllers/book');
 
 const router = Router()
 
@@ -17,5 +18,7 @@ router.post('/new',
     validateJWT, 
     createBook
 )
+
+router.delete('/:id', validateUser, validateJWT, deleteBook)
 
 module.exports = router

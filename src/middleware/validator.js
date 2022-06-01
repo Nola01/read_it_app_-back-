@@ -46,16 +46,16 @@ const validateUser = (req, res = response, next) => {
             //console.log(tokenId);
         })
 
-        console.log(tokenId);
+        // console.log(tokenId);
 
         db('users').where('id_user', tokenId)
         .then(
             (users) => {
                 if(users.length !== 0) {
                     const user = users[0];
-                    console.log(user);
+                    // console.log(user);
 
-                    if (!user || tokenRole.match('profesor')) {
+                    if (!user || tokenRole.match('alumno')) {
                         return res.status(403).json({
                             ok: false,
                             msg: 'Solo un usuario con rol profesor puede crear itinerarios y libros',
@@ -66,6 +66,8 @@ const validateUser = (req, res = response, next) => {
                     //     ok: true,
                     //     msg: "Usuario correcto",
                     // }) 
+
+                    next()
 
                 } else {
                     return res.status(404).json({
@@ -89,7 +91,6 @@ const validateUser = (req, res = response, next) => {
             msg: 'Token erróneo',
         })
     }
-    next()
 }
 
 module.exports = {validateFields, validateUser};
