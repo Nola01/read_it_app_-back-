@@ -3,6 +3,7 @@ require('dotenv').config()
 const auth = require('./routes/auth');
 const user = require('./routes/user');
 const book = require('./routes/book');
+const itinerary = require('./routes/itinerary');
 
 // Create server
 const app = express();
@@ -17,6 +18,7 @@ app.use('/app/auth', auth)
 // Database
 app.use('/app/users', user)
 app.use('/app/books', book)
+app.use('/app/itineraries', itinerary)
 
 // Starting the server
 const PORT = process.env.PORT || 3000
