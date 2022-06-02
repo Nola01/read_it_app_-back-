@@ -3,8 +3,6 @@ const {validationResult} = require('express-validator');
 const jwt = require('jsonwebtoken');
 const db = require('../database/db-config');
 
-const {getUserById} = require('../controllers/user')
-
 const validateFields = (req,res = response, next) => {
     const errors = validationResult(req);
     // console.log(errors);

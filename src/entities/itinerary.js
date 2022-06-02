@@ -1,11 +1,9 @@
 class Itinerary {
-    constructor(name, department, teacher, endDate, books, students) {
+    constructor(name, department, id_teacher, endDate) {
         this.name = name;
         this.department = department;
-        this.teacher = teacher;
+        this.id_teacher = id_teacher;
         this.endDate = endDate;
-        this.books = books;
-        this.students = students;
     }
 }
 
