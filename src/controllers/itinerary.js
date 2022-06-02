@@ -116,7 +116,49 @@ const deleteItinerary = (req, res) => {
 
 const updateItinerary = (req, res) => {
 
-    
+    const {id} = req.params;
+
+    const {name, department, endDate} = req.body;
+
+    const itineraryUpdate = new Itinerary(name, department, endDate);
+
+    db('itineraries').where('id_itinerary', id)
+    .then(
+        (itineraries) => {
+            if(itineraries.length !== 0) {
+                const itinerary = itineraries[0];
+
+                db('itineraries').where('id_itinerary', itinerary.id_itinerary).update(itineraryUpdate)
+                .then(
+                    () => {
+                        return res.status(200).json({
+                            ok: false,
+                            msg: "Itinerario actualizado",
+                        })
+                    }
+                )
+                .catch((err) => {
+                    return res.status(400).json({
+                        ok: false,
+                        msg: "Error al actualizar itinerario",
+                        err
+                    })
+                })
+            } else {
+                return res.status(400).json({
+                    ok: false,
+                    msg: "El itinerario que quiere actualizar no existe",
+                })
+            }
+        }
+    )
+    .catch((err) => {
+        return res.status(500).json({
+            ok: false,
+            msg: "Error en el servidor",
+            err
+        })
+    })
     
 }
 
