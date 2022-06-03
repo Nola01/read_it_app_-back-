@@ -2,12 +2,97 @@ const db = require('../database/db-config');
 const Itinerary = require('../entities/itinerary');
 
 const jwt = require('jsonwebtoken');
+// const { response } = require('express');
 
-const getAllItineraries = (req, res) => {
+const getAllItineraries = async (req, res) => {
     db.select('*').from('itineraries')
     .then(
         (itineraries) => {
-            return res.status(200).send(itineraries)
+            // console.log(itineraries);
+
+            const itinerariesId = [];
+            console.log(itineraries);
+            itineraries.map(itinerary => {
+                itinerariesId.push(itinerary.id_itinerary)
+            })
+            // console.log(itinerariesId);
+
+            // let bookList = [];
+            // let studentsList = [];
+
+            const response = [];
+
+            db('itineraries_books').whereIn('id_itinerary', itinerariesId)
+            .then(
+                async itineraryBooksList => {
+                    
+                    const idList = []
+                    itineraryBooksList.map(obj => {
+                        idList.push(obj.id_itinerary)
+                    })
+
+                    let promises = [...idList]
+
+                    promises = idList.map(async (id) => {
+                        return getItineraryBooks(id).then(books => {
+                            // console.log('PRUEBA ', books);
+                            // bookList.push(books)
+                            const resp = {id, books};
+                            response.push(resp)
+                        })
+                    })
+
+                    // console.log(promesas);
+                    await Promise.all(promises)
+
+                    // console.log(itineraries);
+
+                    // console.log('lista libros: ', bookList);
+                }
+            )
+
+            db('itineraries_students').whereIn('id_itinerary', itinerariesId)
+            .then(
+                async itineraryStudentsList => {
+                    
+                    const idList = []
+                    itineraryStudentsList.map(obj => {
+                        idList.push(obj.id_itinerary)
+                    })
+
+                    let promises = [...idList]
+
+                    promises = idList.map(async (id) => {
+                        return getItineraryStudents(id).then(students => {
+                            // console.log('PRUEBA ', students);
+                            // studentsList.push(students)
+
+                            response.map(obj => {
+                                obj.students = students
+                            })
+                        })
+                    })
+
+                    await Promise.all(promises)
+
+                    promises = [...response]
+
+                    promises = response.map(async (obj) => {
+                        return getItineraryById(obj.id).then(itinerary => {
+                            obj.itinerary = itinerary;
+                            delete obj.id
+                        })
+                    })
+
+                    await Promise.all(promises)
+
+                    return res.status(200).json({
+                        ok: true,
+                        msg: 'Obtener todos los libros',
+                        response
+                    })
+                }
+            )
         }
     )
     .catch((err) => {
@@ -18,14 +103,77 @@ const getAllItineraries = (req, res) => {
     })
 }
 
+const getItineraryBooks = async (itineraryId) => {
+
+    return db.select('*').from('itineraries_books').where('id_itinerary', itineraryId)
+    .then(
+        async (itineraryBooksList) => {
+            const books = [];
+            // console.log('Lista', itineraryBooksList);
+
+            const isbn = [];
+            itineraryBooksList.forEach(obj => isbn.push(obj.isbn))
+            // console.log(isbn);
+
+            return db('books').whereIn('isbn', isbn)
+            .then(
+                (bookList) => {
+                    const book = bookList[0];
+                    books.push(book)
+                    //console.log('Libros: ', books);
+                    return bookList;
+                }
+            )
+        }
+    )
+
+}
+
+const getItineraryStudents = async (itineraryId) => {
+
+    return db.select('*').from('itineraries_students').where('id_itinerary', itineraryId)
+    .then(
+        async (itineraryStudentsList) => {
+            const students = [];
+            // console.log('Lista', itineraryBooksList);
+
+            const idList = [];
+            itineraryStudentsList.forEach(obj => idList.push(obj.id_user))
+            // console.log(isbn);
+
+            return db('users').whereIn('id_user', idList)
+            .then(
+                (studentList) => {
+                    const student = studentList[0];
+                    students.push(student)
+                    //console.log('Libros: ', books);
+                    return studentList;
+                }
+            )
+        }
+    )
+
+}
+
+const getItineraryById = async (itineraryId) => {
+
+    return db.select('*').from('itineraries').where('id_itinerary', itineraryId)
+    .then(
+        (itinerary) => {
+            return itinerary
+        }
+    )
+
+}
+
 const createItineraryBooks = (itineraryName, isbnList) => {
 
     db.select('*').from('itineraries').where('name', itineraryName)
     .then(
         (itineraries) => {
             const itinerary = itineraries[0];
-            console.log(itineraries[0]);
-            console.log(isbnList);
+            // console.log(itineraries[0]);
+            // console.log(isbnList);
             isbnList.map(isbn => {
                 const id_itinerary = itinerary.id_itinerary;
                 const obj = {id_itinerary, isbn}
@@ -47,8 +195,8 @@ const createItineraryStudents = (itineraryName, studentsIdList) => {
     .then(
         (itineraries) => {
             const itinerary = itineraries[0];
-            console.log(itineraries[0]);
-            console.log(studentsIdList);
+            // console.log(itineraries[0]);
+            // console.log(studentsIdList);
             studentsIdList.map(id_user => {
                 const id_itinerary = itinerary.id_itinerary;
                 const obj = {id_itinerary, id_user}
@@ -80,7 +228,7 @@ const createItinerary = (req, res) => {
         id_teacher = token.id_user
     })
 
-    console.log(id_teacher);
+    // console.log(id_teacher);
 
 
     const newItinerary = new Itinerary(name, department, id_teacher, new Date(endDate));
