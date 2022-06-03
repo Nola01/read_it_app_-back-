@@ -18,6 +18,52 @@ const getAllItineraries = (req, res) => {
     })
 }
 
+const createItineraryBooks = (itineraryName, isbnList) => {
+
+    db.select('*').from('itineraries').where('name', itineraryName)
+    .then(
+        (itineraries) => {
+            const itinerary = itineraries[0];
+            console.log(itineraries[0]);
+            console.log(isbnList);
+            isbnList.map(isbn => {
+                const id_itinerary = itinerary.id_itinerary;
+                const obj = {id_itinerary, isbn}
+                db('itineraries_books').insert(obj)
+                .then(
+                    () => {
+                        console.log('Libros registrados');
+                    }
+                )
+            })
+        }
+    )
+
+}
+
+const createItineraryStudents = (itineraryName, studentsIdList) => {
+
+    db.select('*').from('itineraries').where('name', itineraryName)
+    .then(
+        (itineraries) => {
+            const itinerary = itineraries[0];
+            console.log(itineraries[0]);
+            console.log(studentsIdList);
+            studentsIdList.map(id_user => {
+                const id_itinerary = itinerary.id_itinerary;
+                const obj = {id_itinerary, id_user}
+                db('itineraries_students').insert(obj)
+                .then(
+                    () => {
+                        console.log('Alumnos registrados');
+                    }
+                )
+            })
+        }
+    )
+
+}
+
 const createItinerary = (req, res) => {
 
     const token = req.header('x-token')
@@ -166,80 +212,6 @@ const updateItinerary = (req, res) => {
         })
     })
     
-}
-
-const createItineraryBooks = (itineraryName, isbnList) => {
-
-    db.select('*').from('itineraries').where('name', itineraryName)
-    .then(
-        (itineraries) => {
-            const itinerary = itineraries[0];
-            console.log(itineraries[0]);
-            console.log(isbnList);
-            isbnList.map(isbn => {
-                const id_itinerary = itinerary.id_itinerary;
-                const obj = {id_itinerary, isbn}
-                db('itineraries_books').insert(obj)
-                .then(
-                    () => {
-                        console.log('Libros registrados');
-                    }
-                )
-                // .catch((err) => {
-                //     return res.status(500).json({
-                //         ok: false,
-                //         msg: "Error al registrar libros",
-                //         err
-                //     })
-                // })
-            })
-        }
-    )
-    // .catch((err) => {
-    //     return res.status(500).json({
-    //         ok: false,
-    //         msg: "Error en el servidor",
-    //         err
-    //     })
-    // })
-
-}
-
-const createItineraryStudents = (itineraryName, studentsIdList) => {
-
-    db.select('*').from('itineraries').where('name', itineraryName)
-    .then(
-        (itineraries) => {
-            const itinerary = itineraries[0];
-            console.log(itineraries[0]);
-            console.log(studentsIdList);
-            studentsIdList.map(id_user => {
-                const id_itinerary = itinerary.id_itinerary;
-                const obj = {id_itinerary, id_user}
-                db('itineraries_students').insert(obj)
-                .then(
-                    () => {
-                        console.log('Alumnos registrados');
-                    }
-                )
-                // .catch((err) => {
-                //     return res.status(500).json({
-                //         ok: false,
-                //         msg: "Error al registrar libros",
-                //         err
-                //     })
-                // })
-            })
-        }
-    )
-    // .catch((err) => {
-    //     return res.status(500).json({
-    //         ok: false,
-    //         msg: "Error en el servidor",
-    //         err
-    //     })
-    // })
-
 }
 
 module.exports = {getAllItineraries, createItinerary, deleteItinerary, updateItinerary};
