@@ -6,7 +6,7 @@ const knex = require('knex');
 const connection = knex.knex({
   client: 'mysql',
   connection: {
-    host : '192.168.8.148',
+    host : '192.168.1.37',
     port : 3306,
     user : 'root',
     password : 'root',

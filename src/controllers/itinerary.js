@@ -250,7 +250,7 @@ const createItinerary = (req, res) => {
                             createItineraryStudents(name, students)
                         }
                             return res.status(201).json({
-                                ok: false,
+                                ok: true,
                                 msg: "Itinerario registrado",
                             })
                     }
@@ -286,7 +286,7 @@ const deleteItinerary = (req, res) => {
                 .then(
                     () => {
                         return res.status(200).json({
-                            ok: false,
+                            ok: true,
                             msg: "Itinerario borrado",
                         })
                     }
@@ -314,37 +314,242 @@ const deleteItinerary = (req, res) => {
     })
 }
 
-const updateItinerary = (req, res) => {
+const updateItinerary = async (req, res) => {
 
     const {id} = req.params;
 
-    const {name, department, endDate} = req.body;
+    // buscamos este itinerario por su id
+    const fullItinerary = await getItineraryById(id)
 
-    const itineraryUpdate = new Itinerary(name, department, endDate);
+    /**
+        Inicializamos por defecto los campos del nuevo itinerario que vamos a actualizar 
+        con los valores que ya tiene en la bd, de esta manera si el usuario no actualiza alguno
+        de ellos (no viene en el body), ninguno tendrá nunca valor 'undefined', lo que puede
+        provocar conflictos al usar la funcion update()/insert() más adelante
+    */
+    const {name = fullItinerary[0].name, department = fullItinerary[0].department, endDate = fullItinerary[0].endDate} = req.body;
+    let {books, students} = req.body;
+
+    // Si no existe una lista de libros en el body, la inicializamos como una lista vacía
+    if (!books) {
+        books = [];
+    }
+
+    // console.log(name, department, endDate);
+
+    /*
+        Creamos el nuevo itinerario que se insertará en la tabla 'itineraries'.
+        Si en el body no viene ninguno de los siguientes campos no se cambia ningún registro
+    */
+    const itineraryUpdate = new Itinerary(name, department, id_teacher = fullItinerary[0].id_teacher, endDate);
 
     db('itineraries').where('id_itinerary', id)
     .then(
-        (itineraries) => {
+        async (itineraries) => {
+            
             if(itineraries.length !== 0) {
                 const itinerary = itineraries[0];
+                // console.log(itinerary.id_itinerary);
 
-                db('itineraries').where('id_itinerary', itinerary.id_itinerary).update(itineraryUpdate)
+                let id_itinerary = itinerary.id_itinerary
+
+                /*
+                    Actualizamos el itinerario con los datos que recibimos en el body.
+                    Si no hay cambios en el body tampoco se cambia nada en la bd
+                */
+                await db('itineraries').where({id_itinerary}).update(itineraryUpdate)
                 .then(
                     () => {
-                        return res.status(200).json({
-                            ok: false,
-                            msg: "Itinerario actualizado",
-                        })
+                        /* 
+                            Esta función retorna una lista con las filas actualizadas,
+                            pero como aún tenemos que actualizar los libros y los alumnos
+                            de este itinerario no devolvemos nada en la respuesta
+                            por el momento, a no ser que se produzca un error (catch)
+                        */
+                        console.log('Itinerario actualizado');
                     }
                 )
-                .catch((err) => {
+                .catch(err => {
                     return res.status(400).json({
                         ok: false,
-                        msg: "Error al actualizar itinerario",
+                        msg: 'Error al actualizar itinerario',
                         err
                     })
                 })
-            } else {
+                
+                // console.log('libros ', books);
+                
+                if (books.length !== 0) {
+
+                    /*
+                        Como las operaciones se van a resolver dentro de una función map, si enviaramos
+                        una respuesta dentro de esa función, en cada iteración se volvería a enviar
+                        una respuesta y eso produciría un error. Por ello vamos a guardar en dos listas externas
+                        tanto las respuestas satisfactorias como los errores
+                    */
+                    const succesfullList = []
+                    const errorList = []
+
+                    // Creamos una lista de promesas para después resolverlas todas a la vez
+                    let promises = []
+
+                    await db('itineraries_books').where({id_itinerary})
+                    .then(
+                        /*
+                            itineraryBookList es una lista de objetos, donde cada objeto
+                            tiene el siguiente formato: {id_itinerary, isbn}
+                        */
+                        async itineraryBookList => {
+                            // console.log(itineraryBookList);
+
+                            /*
+                                Recorremos una lista con todos los libros del itinerario que
+                                estamos actualizando y guardamos la nueva lista de promesas
+                            */                            
+                            promises = itineraryBookList.map(async (obj) => { // obj es un objeto como este: {id_itinerary, isbn}
+                                // console.log(books.includes(obj.isbn));
+
+                                /*
+                                    Si la nueva lista de libros no incluye un libro que ya estaba
+                                    asignado a este itinerario, se elimina de la bd
+                                */
+                                if (!books.includes(obj.isbn)) {
+                                    await db('itineraries_books').where({id_itinerary}).andWhere('isbn', obj.isbn).del()
+                                    .then(
+                                        () => {
+                                            console.log('eliminar');
+                                        }
+                                    )
+                                    .catch((err) => {
+                                        errorList.push({
+                                            ok: false,
+                                            msg: "Error al actualizar nuevos libros",
+                                            err
+                                        });
+                                    })
+                                }
+                            })
+
+                            // Esperamos a que se resuelvan todas las promesas anteriores
+                            await Promise.all(promises)
+
+                            /*
+                                Volvemos a obtener la lista de libros para este itinerario porque
+                                se pueden producir cambios después de eliminar algún libro
+                            */
+                            await db('itineraries_books').where({id_itinerary})
+                            .then(
+                                async (itineraryBookList) => {
+                                    // Volvemos a guardar las promesas que se crean en cada iteración
+                                    promises = books.map( async (isbn) => {
+                                        const updateBook = {id_itinerary, isbn}
+
+                                        // console.log('update books', updateBook);
+        
+                                        // console.log(itineraryBookList.length);
+                
+                                        if (itineraryBookList.length !== 0) {
+            
+                                            let promises = [];
+                         
+                                            promises = itineraryBookList.map(async (obj) => {
+                                                // console.log('existe: ', obj.isbn, updateBook.isbn, obj.isbn !== updateBook.isbn)
+
+                                                /*
+                                                    Si el libro que queremos actualizar no está
+                                                    en la bd, lo insertamos
+                                                */
+                                                if (obj.isbn !== updateBook.isbn) {
+                                                    // console.log(updateBook);
+                                                    // console.log('inserta');
+                                                    await db('itineraries_books').where({id_itinerary}).insert(updateBook)
+                                                    .then(
+                                                        () => {
+                                                            succesfullList.push({ok: true, msg: "Itinerario actualizado"})
+                                                        }
+                                                    )
+                                                    .catch((err) => {
+                                                        console.log(err);
+                                                        errorList.push({
+                                                            ok: false,
+                                                            msg: "Error al actualizar nuevos libros update",
+                                                            err
+                                                        });
+                                                    })
+                                                }
+                                            })
+        
+                                            // Resolvemos todas las promesas creadas al insertar los nuevos libros
+                                            await Promise.all(promises)
+            
+                                            
+                                        } else { 
+                                            // Si este itinerario no tiene ningún libro asignado, se insertan los nuevos
+                                            await db('itineraries_books').where('id_itinerary', itinerary.id_itinerary).insert(updateBook)
+                                            .then(
+                                                () => {
+                                                    succesfullList.push({ok: true, msg: "Itinerario actualizado"})
+                                                    
+                                                }
+                                            )
+                                            .catch((err) => {
+                                                errorList.push({
+                                                    ok: false,
+                                                    msg: "Error al actualizar nuevos libros",
+                                                    err
+                                                });
+                                            })
+                                        }
+                                    })
+        
+                                    // Resolvemos todas las promesas creadas al insertar los nuevos libros
+                                    await Promise.all(promises)
+                                }
+                            )
+                            .catch((err) => {
+                                errorList.push({
+                                    ok: false,
+                                    msg: "Error al actualizar nuevos libros",
+                                    err
+                                });
+                            })
+                            
+                                
+                        }
+                    )
+                    .catch((err) => {
+                        errorList.push({
+                            ok: false,
+                            msg: "Error al actualizar nuevos libros",
+                            err
+                        });
+                    })
+                
+                    // console.log(succesfullList[0]);
+                    // console.log(errorList[0]);
+
+                    // Mostramos la respuesta tanto si es 'ok' como si es error
+                    if (succesfullList.length !== 0) {
+                        return res.status(200).json(succesfullList[0])
+
+                    } else if (errorList.length !== 0) {
+                        return res.status(400).json(errorList[0])
+
+                    } else {
+                        return res.status(200).json({
+                            ok: true,
+                            msg: "Itinerario actualizado"
+                        })
+                    }
+
+                } else { // Si la lista de libros en el body está vacía
+                    console.log('vacio');
+                    return res.status(400).json({
+                        ok: false,
+                        msg: "El itinerario debe tener como mínimo un libro",
+                    })
+                }
+            } else { // Si la lista de itinerarios al buscar por id está vacía
                 return res.status(400).json({
                     ok: false,
                     msg: "El itinerario que quiere actualizar no existe",
