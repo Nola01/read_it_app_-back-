@@ -166,4 +166,22 @@ const createUser = async (req, res) => {
     })
 }
 
+
+
+
+// const setUserBooks = (userId) => {
+//     db('')
+// }
+
+// const getUserBooks = async (userId) => {
+
+//     await db('users_books').where('id_user', userId)
+//     .then(
+//         users => {
+//             const user = users[0]
+//             return user;
+//         }
+//     )
+// }
+
 module.exports = {getAllUsers, getUserById, loginUser, createUser};
