@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const {check} = require('express-validator');
-const {validateFields, validateUser} = require('../middleware/validator');
+const {validateFields, validateUserToken} = require('../middleware/validator');
 const {validateJWT} = require('../middleware/validate-token');
 
 const {getAllBooks, createBook, deleteBook, updateBook} = require('../controllers/book');
@@ -14,13 +14,13 @@ router.post('/new',
         check('title', 'Campo nombre no puede estar vacío').notEmpty(),
         validateFields
     ], 
-    validateUser,
+    validateUserToken,
     validateJWT, 
     createBook
 )
 
-router.delete('/:id', validateUser, validateJWT, deleteBook)
+router.delete('/:id', validateUserToken, validateJWT, deleteBook)
 
-router.put('/:id', validateUser, validateJWT, updateBook)
+router.put('/:id', validateUserToken, validateJWT, updateBook)
 
 module.exports = router

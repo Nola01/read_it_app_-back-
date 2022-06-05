@@ -16,6 +16,22 @@ const getAllBooks = (req, res) => {
     })
 }
 
+const getBookByIsbn = async (isbn) => {
+    return db('books').where({isbn})
+    .then(
+        (books) => {
+            if (books.length !== 0) {
+                const book = books[0]
+                return book
+            } else {
+                const error = 'Error'
+                return error
+            }
+            
+        }
+    )
+}
+
 const createBook = (req, res) => {
     const {isbn, title, author, image} = req.body;
 
@@ -152,4 +168,4 @@ const updateBook = (req, res) => {
     
 }
 
-module.exports = {getAllBooks, createBook, deleteBook, updateBook};
+module.exports = {getAllBooks, getBookIsbn: getBookByIsbn, createBook, deleteBook, updateBook};

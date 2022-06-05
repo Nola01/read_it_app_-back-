@@ -1,6 +1,9 @@
 const db = require('../database/db-config');
+
 const Itinerary = require('../entities/itinerary');
+
 const {updateBooks} = require('./itinerary_books');
+const {updateStudents} = require('./itinerary_students')
 
 const jwt = require('jsonwebtoken');
 // const { response } = require('express');
@@ -335,6 +338,10 @@ const updateItinerary = async (req, res) => {
         books = [];
     }
 
+    if (!students) {
+        students = [];
+    }
+
     // console.log(name, department, endDate);
 
     /*
@@ -378,20 +385,87 @@ const updateItinerary = async (req, res) => {
                 })
                 
                 // console.log('libros ', books);
+
+                let responseBooksList = []
+                let responseStudentsList = []
+                let errorList = []
                 
                 if (books.length !== 0) {
-
-                    updateBooks(req, res, id_itinerary, books);
-
+                    updateBooks(req, res, id_itinerary, books)
+                    .then(
+                        (response) => {
+                            responseBooksList = response
+                        }
+                    );
                 } else { // Si la lista de libros en el body está vacía
-                    console.log('vacio');
+                    // console.log('vacio');
                     return res.status(400).json({
                         ok: false,
                         msg: "El itinerario debe tener como mínimo un libro",
                     })
                 }
 
+                if (students.length !== 0) {
+                    let promises = []
+
+                    /*
+                        Comprobamos que los alumnos introducidos por el usuario tienen rol alumno.
+                        El itinerario solo está asignado a un profesor (quien lo crea)
+                    */
+                    promises = students.map(student => {
+                        db('users').where('id_user', student.id_user)
+                        .then(
+                            (users) => {
+                                const user = users[0]
+                                if (user.role === 'profesor') {
+                                    errorList.push({ok: false, msg: "El itinerario sólo puede estar asignado a alumnos"})
+                                }
+                            }
+                        )
+                        .catch((err) => {
+                            errorList.push({ok: false, msg: "Error al comprobar rol de alumnos", err})
+                        });
+                    })
+
+                    await Promise.all(promises)
+                    
+                    updateStudents(req, res, id_itinerary, students)
+                    .then(
+                        (response) => {
+                            responseStudentsList = response
+                        }
+                    );
+                } else {
+                    return res.status(400).json({
+                        ok: false,
+                        msg: "El itinerario debe tener como mínimo un alumno",
+                    })
+                }
+
+                console.log('hola');
                 
+                /*
+                    Comprobamos primero si ha surgido algún error aquí y lo retornamos en la respuesta,
+                    si no es así comprobamos si ha surgido algún error al actualizar los libros (si
+                    es [] significa que todo ha ido bien), después comprobamos igual para la
+                    actualización de alumnos (si es [] no hay errores). Por último, si no se ha retornado nada
+                    aún sigifica que no hay errores así que retornamos un mensaje informando de que todo ha ido bien.
+                */
+                if (errorList.length !== 0) {
+                    return res.status(400).json(errorList[0])
+
+                } else if (responseBooksList.length !== 0) {
+                    return res.status(400).json(responseBooksList[0])
+
+                } else if (responseStudentsList.length !== 0) {
+                    return res.status(400).json(responseStudentsList[0])
+
+                } else {
+                    return res.status(200).json({
+                        ok: true,
+                        msg: "Itinerario actualizado"
+                    })
+                }
                 
 
             } else { // Si la lista de itinerarios al buscar por id está vacía

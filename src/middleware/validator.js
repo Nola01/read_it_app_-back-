@@ -17,7 +17,25 @@ const validateFields = (req,res = response, next) => {
     next()
 }
 
-const validateUser = (req, res = response, next) => {
+const validateItinerary = (req, res = response, next) => {
+    const {id} = req.params;
+
+    db('itineraries').where('id_itinerary', id)
+    .then(
+        (itineraries) => {
+            if (itineraries.length === 0) {
+                return res.status(401).json({
+                    ok: false,
+                    msg: 'No existe itinerario con ese id',
+                })
+            } else {
+                next()
+            }
+        }
+    )
+}
+
+const validateUserToken = (req, res = response, next) => {
     const token = req.header('x-token')
     if (!token) {
         return res.status(401).json({
@@ -91,4 +109,4 @@ const validateUser = (req, res = response, next) => {
     }
 }
 
-module.exports = {validateFields, validateUser};
+module.exports = {validateFields, validateItinerary, validateUserToken};

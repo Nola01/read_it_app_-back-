@@ -1,6 +1,6 @@
 const db = require('../database/db-config');
 
-const updateBooks = async (req, res, id_itinerary, books) => {
+const updateStudents = async (req, res, id_itinerary, students) => {
     /*
         Como las operaciones se van a resolver dentro de una función map, si enviaramos
         una respuesta dentro de esa función, en cada iteración se volvería a enviar
@@ -13,28 +13,26 @@ const updateBooks = async (req, res, id_itinerary, books) => {
     // Creamos una lista de promesas para después resolverlas todas a la vez
     let promises = []
 
-    await db('itineraries_books').where({id_itinerary})
+    await db('itineraries_students').where({id_itinerary})
     .then(
         /*
-            itineraryBookList es una lista de objetos, donde cada objeto
-            tiene el siguiente formato: {id_itinerary, isbn}
+            itineraryStudentsList es una lista de objetos, donde cada objeto
+            tiene el siguiente formato: {id_itinerary, id_user}
         */
-        async itineraryBookList => {
-            // console.log(itineraryBookList);
+        async itineraryStudentList => {
 
             /*
-                Recorremos una lista con todos los libros del itinerario que
+                Recorremos una lista con todos los alumnos del itinerario que
                 estamos actualizando y guardamos la nueva lista de promesas
             */                            
-            promises = itineraryBookList.map(async (obj) => { // obj es un objeto como este: {id_itinerary, isbn}
-                // console.log(books.includes(obj.isbn));
+            promises = itineraryStudentList.map(async (obj) => { // obj es un objeto como este: {id_itinerary, id_user}
 
                 /*
-                    Si la nueva lista de libros no incluye un libro que ya estaba
+                    Si la nueva lista de alumnos no incluye un alumno que ya estaba
                     asignado a este itinerario, se elimina de la bd
                 */
-                if (!books.includes(obj.isbn)) {
-                    await db('itineraries_books').where({id_itinerary}).andWhere('isbn', obj.isbn).del()
+                if (!students.includes(obj.id_user)) {
+                    await db('itineraries_students').where({id_itinerary}).andWhere('id_user', obj.id_user).del()
                     .then(
                         () => {
                             console.log('eliminar');
@@ -43,7 +41,7 @@ const updateBooks = async (req, res, id_itinerary, books) => {
                     .catch((err) => {
                         errorList.push({
                             ok: false,
-                            msg: "Error al actualizar nuevos libros",
+                            msg: "Error al actualizar nuevos alumnos",
                             err
                         });
                     })
@@ -54,37 +52,28 @@ const updateBooks = async (req, res, id_itinerary, books) => {
             await Promise.all(promises)
 
             /*
-                Volvemos a obtener la lista de libros para este itinerario porque
+                Volvemos a obtener la lista de alumnos para este itinerario porque
                 se pueden producir cambios después de eliminar alguno
             */
-            await db('itineraries_books').where({id_itinerary})
+            await db('itineraries_students').where({id_itinerary})
             .then(
-                async (itineraryBookList) => {
+                async (itineraryStudentList) => {
                     // Volvemos a guardar las promesas que se crean en cada iteración
-                    promises = books.map( async (isbn) => {
-                        const updateBook = {id_itinerary, isbn}
+                    promises = students.map( async (id_user) => {
+                        const updateStudent = {id_itinerary, id_user}
 
-                        // console.log('update books', updateBook);
-
-                        // console.log(itineraryBookList.length);
-
-                        if (itineraryBookList.length !== 0) {
+                        if (itineraryStudentList.length !== 0) {
 
                             let promises = [];
             
-                            promises = itineraryBookList.map(async (obj) => {
-                                // console.log('existe: ', obj.isbn, updateBook.isbn, obj.isbn !== updateBook.isbn)
-
-                                
+                            promises = itineraryStudentList.map(async (obj) => {
 
                                 /*
-                                    Si el libro que queremos actualizar no está
+                                    Si el alumno que queremos actualizar no está
                                     en la bd, lo insertamos
                                 */
-                                if (obj.isbn !== updateBook.isbn) {
-                                    // console.log(updateBook);
-                                    // console.log('inserta');
-                                    await db('itineraries_books').where({id_itinerary}).insert(updateBook)
+                                if (obj.id_user !== updateStudent.id_user) {
+                                    await db('itineraries_students').where({id_itinerary}).insert(updateStudent)
                                     .then(
                                         () => {
                                             succesfullList.push({ok: true, msg: "Itinerario actualizado"})
@@ -94,20 +83,20 @@ const updateBooks = async (req, res, id_itinerary, books) => {
                                         console.log(err);
                                         errorList.push({
                                             ok: false,
-                                            msg: "Error al actualizar nuevos libros",
+                                            msg: "Error al actualizar nuevos alumnos",
                                             err
                                         });
                                     })
                                 }
                             })
 
-                            // Resolvemos todas las promesas creadas al insertar los nuevos libros
+                            // Resolvemos todas las promesas creadas al insertar los nuevos alumnos
                             await Promise.all(promises)
 
                             
                         } else { 
-                            // Si este itinerario no tiene ningún libro asignado, se insertan los nuevos
-                            await db('itineraries_books').where({id_itinerary}).insert(updateBook)
+                            // Si este itinerario no tiene ningún alumno asignado, se insertan los nuevos
+                            await db('itineraries_students').where({id_itinerary}).insert(updateStudent)
                             .then(
                                 () => {
                                     succesfullList.push({ok: true, msg: "Itinerario actualizado"})
@@ -117,21 +106,21 @@ const updateBooks = async (req, res, id_itinerary, books) => {
                             .catch((err) => {
                                 errorList.push({
                                     ok: false,
-                                    msg: "Error al actualizar nuevos libros",
+                                    msg: "Error al actualizar nuevos alumnos",
                                     err
                                 });
                             })
                         }
                     })
 
-                    // Resolvemos todas las promesas creadas al insertar los nuevos libros
+                    // Resolvemos todas las promesas creadas al insertar los nuevos alumnos
                     await Promise.all(promises)
                 }
             )
             .catch((err) => {
                 errorList.push({
                     ok: false,
-                    msg: "Error al actualizar nuevos libros",
+                    msg: "Error al actualizar nuevos alumnos",
                     err
                 });
             })
@@ -142,13 +131,10 @@ const updateBooks = async (req, res, id_itinerary, books) => {
     .catch((err) => {
         errorList.push({
             ok: false,
-            msg: "Error al actualizar nuevos libros",
+            msg: "Error al actualizar nuevos alumnos",
             err
         });
     })
-
-    // console.log(succesfullList[0]);
-    // console.log(errorList[0]);
 
     // Retornamos una respuesta, si no hay ningún error retornamos [], en caso contrario retornamos el error
     if (succesfullList.length !== 0) {
@@ -160,5 +146,4 @@ const updateBooks = async (req, res, id_itinerary, books) => {
     }
 }
 
-
-module.exports = {updateBooks};
+module.exports = {updateStudents}
