@@ -4,6 +4,7 @@ const Itinerary = require('../entities/itinerary');
 
 const {createItineraryBooks, updateBooks} = require('./itinerary_books');
 const {createItineraryStudents, updateStudents} = require('./itinerary_students')
+const {createUserBooks} = require('./user_books')
 
 const jwt = require('jsonwebtoken');
 // const { response } = require('express');
@@ -205,11 +206,23 @@ const createItinerary = (req, res) => {
                         if (students.length !== 0) {
                             createItineraryStudents(req, res, name, students)
                         }
-                            return res.status(201).json({
-                                ok: true,
-                                msg: "Itinerario registrado",
-                            })
-                    }
+
+                        createUserBooks(req, res, students, books)
+                        .then(
+                            (errorList) => {
+                                if (errorList.length === 0) {
+                                    return res.status(201).json({
+                                        ok: true,
+                                        msg: "Itinerario registrado",
+                                    })
+                                } else {
+                                    return errorList[0]
+                                }
+                            }
+                        )
+                        
+                        
+                }
                 )
                 .catch((err) => {
                     return res.status(400).json({
