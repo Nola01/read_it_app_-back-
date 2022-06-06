@@ -2,8 +2,8 @@ const db = require('../database/db-config');
 
 const Itinerary = require('../entities/itinerary');
 
-const {updateBooks} = require('./itinerary_books');
-const {updateStudents} = require('./itinerary_students')
+const {createItineraryBooks, updateBooks} = require('./itinerary_books');
+const {createItineraryStudents, updateStudents} = require('./itinerary_students')
 
 const jwt = require('jsonwebtoken');
 // const { response } = require('express');
@@ -15,16 +15,15 @@ const getAllItineraries = async (req, res) => {
             // console.log(itineraries);
 
             const itinerariesId = [];
-            console.log(itineraries);
+            // console.log(itineraries);
             itineraries.map(itinerary => {
                 itinerariesId.push(itinerary.id_itinerary)
             })
             // console.log(itinerariesId);
 
-            // let bookList = [];
-            // let studentsList = [];
-
             const response = [];
+
+            // obtenemos los libros y alumnos de cada itinerario
 
             db('itineraries_books').whereIn('id_itinerary', itinerariesId)
             .then(
@@ -39,8 +38,6 @@ const getAllItineraries = async (req, res) => {
 
                     promises = idList.map(async (id) => {
                         return getItineraryBooks(id).then(books => {
-                            // console.log('PRUEBA ', books);
-                            // bookList.push(books)
                             const resp = {id, books};
                             response.push(resp)
                         })
@@ -92,8 +89,8 @@ const getAllItineraries = async (req, res) => {
 
                     return res.status(200).json({
                         ok: true,
-                        msg: 'Obtener todos los libros',
-                        response
+                        msg: 'Obtener todos los itinerarios',
+                        itineraries: response
                     })
                 }
             )
@@ -170,51 +167,6 @@ const getItineraryById = async (itineraryId) => {
 
 }
 
-const createItineraryBooks = (itineraryName, isbnList) => {
-
-    db.select('*').from('itineraries').where('name', itineraryName)
-    .then(
-        (itineraries) => {
-            const itinerary = itineraries[0];
-            // console.log(itineraries[0]);
-            // console.log(isbnList);
-            isbnList.map(isbn => {
-                const id_itinerary = itinerary.id_itinerary;
-                const obj = {id_itinerary, isbn}
-                db('itineraries_books').insert(obj)
-                .then(
-                    () => {
-                        console.log('Libros registrados');
-                    }
-                )
-            })
-        }
-    )
-
-}
-
-const createItineraryStudents = (itineraryName, studentsIdList) => {
-
-    db.select('*').from('itineraries').where('name', itineraryName)
-    .then(
-        (itineraries) => {
-            const itinerary = itineraries[0];
-            // console.log(itineraries[0]);
-            // console.log(studentsIdList);
-            studentsIdList.map(id_user => {
-                const id_itinerary = itinerary.id_itinerary;
-                const obj = {id_itinerary, id_user}
-                db('itineraries_students').insert(obj)
-                .then(
-                    () => {
-                        console.log('Alumnos registrados');
-                    }
-                )
-            })
-        }
-    )
-
-}
 
 const createItinerary = (req, res) => {
 
@@ -248,10 +200,10 @@ const createItinerary = (req, res) => {
                 .then(
                     () => {
                         if (books.length !== 0) {
-                            createItineraryBooks(name, books)
+                            createItineraryBooks(req, res, name, books)
                         }
                         if (students.length !== 0) {
-                            createItineraryStudents(name, students)
+                            createItineraryStudents(req, res, name, students)
                         }
                             return res.status(201).json({
                                 ok: true,

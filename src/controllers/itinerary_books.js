@@ -1,5 +1,42 @@
 const db = require('../database/db-config');
 
+const createItineraryBooks = (req, res, itineraryName, isbnList) => {
+
+    db.select('*').from('itineraries').where('name', itineraryName)
+    .then(
+        (itineraries) => {
+            const itinerary = itineraries[0];
+            // console.log(itineraries[0]);
+            // console.log(isbnList);
+            isbnList.map(isbn => {
+                const id_itinerary = itinerary.id_itinerary;
+                const obj = {id_itinerary, isbn}
+                db('itineraries_books').insert(obj)
+                .then(
+                    () => {
+                        console.log('Libros registrados');
+                    }
+                )
+                .catch(err => {
+                    return res.status(400).json({
+                        ok: false,
+                        msg: "Error al insertar libros",
+                        err
+                    })
+                })
+            })
+        }
+    )
+    .catch(err => {
+        return res.status(400).json({
+            ok: false,
+            msg: "El itinerario no existe",
+            err
+        })
+    })
+
+}
+
 const updateBooks = async (req, res, id_itinerary, books) => {
     /*
         Como las operaciones se van a resolver dentro de una función map, si enviaramos
@@ -161,4 +198,4 @@ const updateBooks = async (req, res, id_itinerary, books) => {
 }
 
 
-module.exports = {updateBooks};
+module.exports = {createItineraryBooks, updateBooks};
