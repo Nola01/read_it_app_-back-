@@ -12,7 +12,7 @@ const jwt = require('jsonwebtoken');
 const getAllItineraries = async (req, res) => {
     db.select('*').from('itineraries')
     .then(
-        (itineraries) => {
+        async (itineraries) => {
             // console.log(itineraries);
 
             const itinerariesId = [];
@@ -24,77 +24,146 @@ const getAllItineraries = async (req, res) => {
 
             const response = [];
 
+            let promises = []
+
             // obtenemos los libros y alumnos de cada itinerario
 
-            db('itineraries_books').whereIn('id_itinerary', itinerariesId)
-            .then(
-                async itineraryBooksList => {
-                    
-                    const idList = []
-                    itineraryBooksList.map(obj => {
-                        idList.push(obj.id_itinerary)
-                    })
+            promises = itineraries.map(async (itinerary) => {
+                const obj = {itinerary}
 
-                    let promises = [...idList]
 
-                    promises = idList.map(async (id) => {
-                        return getItineraryBooks(id).then(books => {
-                            const resp = {id, books};
-                            response.push(resp)
+                await db('itineraries_books').where('id_itinerary', itinerary.id_itinerary)
+                .then(
+                    async itineraryBooksList => {
+                        const idList = []
+                        itineraryBooksList.map(obj => {
+                            idList.push(obj.id_itinerary)
                         })
-                    })
 
-                    // console.log(promesas);
-                    await Promise.all(promises)
+                        let promises = [...idList]
 
-                    // console.log(itineraries);
+                        promises = idList.map(async (id) => {
+                            return getItineraryBooks(id).then(books => {
+                                obj.books = books
+                            })
+                        })
 
-                    // console.log('lista libros: ', bookList);
-                }
-            )
+                        // console.log(promesas);
+                        await Promise.all(promises)
+                        }
+                )
 
-            db('itineraries_students').whereIn('id_itinerary', itinerariesId)
-            .then(
-                async itineraryStudentsList => {
+                await db('itineraries_students').where('id_itinerary', itinerary.id_itinerary)
+                .then(
+                    async itineraryStudentsList => {
                     
-                    const idList = []
-                    itineraryStudentsList.map(obj => {
-                        idList.push(obj.id_itinerary)
-                    })
-
-                    let promises = [...idList]
-
-                    promises = idList.map(async (id) => {
-                        return getItineraryStudents(id).then(students => {
-                            // console.log('PRUEBA ', students);
-                            // studentsList.push(students)
-
-                            response.map(obj => {
+                        const idList = []
+                        itineraryStudentsList.map(obj => {
+                            idList.push(obj.id_itinerary)
+                        })
+    
+                        let promises = [...idList]
+    
+                        promises = idList.map(async (id) => {
+                            return getItineraryStudents(id).then(students => {
                                 obj.students = students
                             })
                         })
-                    })
+    
+                        await Promise.all(promises)
+    
+                        
+                    }
+                )
 
-                    await Promise.all(promises)
+                console.log('obj', obj);
 
-                    promises = [...response]
+                response.push(obj)
 
-                    promises = response.map(async (obj) => {
-                        return getItineraryById(obj.id).then(itinerary => {
-                            obj.itinerary = itinerary;
-                            delete obj.id
-                        })
-                    })
+                console.log('response', response);
 
-                    await Promise.all(promises)
 
-                    return res.status(200).json({
-                        ok: true,
-                        msg: 'Obtener todos los itinerarios',
-                        itineraries: response
-                    })
-                }
-            )
+                //console.log('RESPONSE', response);
+
+                
+            })
+
+            await Promise.all(promises)
+
+
+            return res.status(200).send(response)
+
+            // db('itineraries_books').whereIn('id_itinerary', itinerariesId)
+            // .then(
+            //     async itineraryBooksList => {
+                    
+            //         const idList = []
+            //         itineraryBooksList.map(obj => {
+            //             idList.push(obj.id_itinerary)
+            //         })
+
+            //         let promises = [...idList]
+
+            //         promises = idList.map(async (id) => {
+            //             return getItineraryBooks(id).then(books => {
+            //                 response.map(obj => {
+            //                     obj.books = books
+            //                 })
+            //             })
+            //         })
+
+            //         // console.log(promesas);
+            //         await Promise.all(promises)
+
+            //         // console.log(itineraries);
+
+            //         // console.log('lista libros: ', bookList);
+            //     }
+            // )
+
+            // db('itineraries_students').whereIn('id_itinerary', itinerariesId)
+            // .then(
+            //     async itineraryStudentsList => {
+                    
+            //         const idList = []
+            //         itineraryStudentsList.map(obj => {
+            //             idList.push(obj.id_itinerary)
+            //         })
+
+            //         let promises = [...idList]
+
+            //         promises = idList.map(async (id) => {
+            //             return getItineraryStudents(id).then(students => {
+            //                 // console.log('PRUEBA ', students);
+            //                 // studentsList.push(students)
+
+            //                 response.map(obj => {
+            //                     obj.students = students
+            //                 })
+            //             })
+            //         })
+
+            //         await Promise.all(promises)
+
+            //         promises = [...response]
+
+            //         promises = idList.map(async (id) => {
+            //             return getItineraryById(id).then(itinerary => {
+            //                 response.map(obj => {
+            //                     obj.itinerary = itinerary;
+            //                     delete obj.id
+            //                 })
+                            
+            //             })
+            //         })
+
+            //         await Promise.all(promises)
+
+            //         console.log(response);
+
+            //         return res.status(200).send(response)
+            //     }
+            // )
         }
     )
     .catch((err) => {
