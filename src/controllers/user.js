@@ -119,9 +119,20 @@ const loginUser = async (req, res) => {
 
 const createUser = async (req, res) => {
 
-    const {name, password, email, role, pin} = req.body;
+    const {name, password, email} = req.body;
 
-    const newUser = new User(name, password, email, role, pin);
+    let {role, pin} = req.body;
+
+    
+    if (role === undefined) {
+        role = 'alumno'
+    }
+    
+    if (pin === undefined) {
+        pin = 0
+    }
+    
+    let newUser = new User(name, password, email, role, pin);
 
     newUser.password = bcrypt.hashSync(password, salt);
 

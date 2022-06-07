@@ -10,9 +10,9 @@ const {generateJWT} = require('../helper/jwt')
 const {createUser, loginUser} = require('./user')
 
 const register = async (req, res = response) => {
-    const {name, password, email, role, pin} = req.body;
+    // const {name, password, email, role, pin} = req.body;
 
-    const user = new User(name, password, email, role, pin);
+    // const user = new User(name, password, email, role, pin);
 
     createUser(req, res);
     
@@ -20,9 +20,9 @@ const register = async (req, res = response) => {
 
 const login = async (req, res = response) => {
 
-    const {name, password, email, role, pin} = req.body;
+    // const {name, password, email, role, pin} = req.body;
 
-    const user = new User(name, password, email, role, pin);
+    // const user = new User(name, password, email, role, pin);
 
     loginUser(req, res);
     

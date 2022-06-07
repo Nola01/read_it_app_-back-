@@ -18,7 +18,7 @@ router.post('/register',
         check('email', 'El correo electrónico no es válido').isEmail(),
         check('password', 'La contraseña debe tener al menos 8 caracteres').isLength({min:8}),
         check('password', 'La contraseña no puede tener más de 16 caracteres').isLength({max:16}),
-        check('role', 'Debe seleccionar un rol (alumno o profesor)').notEmpty().matches(/alumno|profesor/),
+        // check('role', 'Debe seleccionar un rol (alumno o profesor)').notEmpty().matches(/alumno|profesor/),
         validateFields
     ],
     register)
