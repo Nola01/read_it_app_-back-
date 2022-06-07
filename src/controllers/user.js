@@ -91,10 +91,11 @@ const loginUser = async (req, res) => {
                             msg: "Contraseña incorrecta",
                         })
                     }
+                    
                     return res.status(200).json({
                         ok: true,
                         msg: "Login correcto",
-                        email: user.email,
+                        user,
                         password: user.password,
                         token
                     }) 
@@ -147,12 +148,18 @@ const createUser = async (req, res) => {
                 db('users').insert(newUser)
                 .then(
                     (id) => {
-                        return res.status(201).json({
-                            ok: false,
-                            msg: "Usuario registrado",
-                            id,
-                            token
-                        })
+                        db('users').where('id_user', id)
+                        .then(
+                            users => {
+                                const user = users[0]
+                                return res.status(201).json({
+                                    ok: true,
+                                    msg: "Usuario registrado",
+                                    user,
+                                    token
+                                })
+                            }
+                        )
                     }
                 )
                 .catch((err) => {
