@@ -50,13 +50,13 @@ const createBook = (req, res) => {
         })
     }
 
-    console.log('Crea libro');
+    // console.log('Crea libro');
 
     db.select('*').from('books').where({isbn})
     .then(
         (books) => {
             if(books.length === 0) {
-                console.log(newBook);
+                // console.log(newBook);
                 db('books').insert(newBook)
                 .then(
                     () => {

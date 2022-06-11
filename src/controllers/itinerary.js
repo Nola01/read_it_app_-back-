@@ -435,8 +435,6 @@ const updateItinerary = async (req, res) => {
                         msg: "El itinerario debe tener como mínimo un alumno",
                     })
                 }
-
-                console.log('hola');
                 
                 /*
                     Comprobamos primero si ha surgido algún error aquí y lo retornamos en la respuesta,
