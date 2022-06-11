@@ -1,6 +1,6 @@
 const db = require('../database/db-config');
 
-const Itinerary = require('../entities/itinerary');
+const Itinerary = require('../models/itinerary');
 
 const {createItineraryBooks, updateBooks} = require('./itinerary_books');
 const {createItineraryStudents, updateStudents} = require('./itinerary_students')

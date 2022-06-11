@@ -1,6 +1,6 @@
 
 const db = require('../database/db-config');
-const User = require('../entities/user');
+const User = require('../models/user');
 const {generateJWT} = require('../helper/jwt');
 
 var bcrypt = require('bcrypt')

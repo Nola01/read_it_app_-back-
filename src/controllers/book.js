@@ -1,5 +1,5 @@
 const db = require('../database/db-config');
-const Book = require('../entities/book');
+const Book = require('../models/book');
 
 const getAllBooks = (req, res) => {
     db.select('*').from('books')
