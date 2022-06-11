@@ -188,7 +188,7 @@ const createItinerary = (req, res) => {
 
     const token = req.header('x-token')
 
-    const {name, department, endDate, books, students} = req.body; //students (students id array), books (books id array)
+    const {name, department, id_group, endDate, books, students} = req.body; //students (students id array), books (books id array)
 
     let id_teacher;
 
@@ -217,7 +217,7 @@ const createItinerary = (req, res) => {
     // endDateWithoutTime = year+'-' + month + '-'+dt;
 
 
-    const newItinerary = new Itinerary(name, department, id_teacher, endDate);
+    const newItinerary = new Itinerary(name, department, id_teacher, id_group, endDate);
 
     // console.log(newItinerary);
 

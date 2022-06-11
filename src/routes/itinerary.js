@@ -13,6 +13,7 @@ router.post('/new',
     [
         check('name', 'Campo nombre no puede estar vacío').notEmpty(),
         check('department', 'Campo departamento no puede estar vacío').notEmpty(),
+        check('id_group', 'Debe seleccionar un grupo').notEmpty(),
         validateFields
     ], 
     validateUserToken,
