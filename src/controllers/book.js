@@ -33,9 +33,22 @@ const getBookByIsbn = async (isbn) => {
 }
 
 const createBook = (req, res) => {
-    const {isbn, title, author, image} = req.body;
+    const {isbn, title, author} = req.body;
+
+    let {image} = req.body
 
     const newBook = new Book(isbn, title, author, image);
+
+    if (!image) {
+        image = ''
+    }
+
+    if (!isbn) {
+        return res.status(400).json({
+            ok: false,
+            msg: "Debe introducir el isbn",
+        })
+    }
 
     console.log('Crea libro');
 
@@ -48,7 +61,7 @@ const createBook = (req, res) => {
                 .then(
                     () => {
                         return res.status(201).json({
-                            ok: false,
+                            ok: true,
                             msg: "Libro registrado",
                         })
                     }
