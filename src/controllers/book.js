@@ -181,4 +181,4 @@ const updateBook = (req, res) => {
     
 }
 
-module.exports = {getAllBooks, getBookIsbn: getBookByIsbn, createBook, deleteBook, updateBook};
+module.exports = {getAllBooks, getBookByIsbn, createBook, deleteBook, updateBook};

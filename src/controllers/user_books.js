@@ -1,4 +1,5 @@
 const db = require('../database/db-config');
+const {getBookByIsbn} = require('./book')
 
 const createUserBooks = async (req, res, studentsList, booksList) => {
 
@@ -26,4 +27,36 @@ const createUserBooks = async (req, res, studentsList, booksList) => {
 
 }
 
-module.exports = {createUserBooks}
+const getUserBooks = (req, res) => {
+    const {id} = req.params;
+
+    db('users_books').where('id_user', id)
+    .then(
+        async (list) => {
+            const books = []
+            const isbnList = []
+
+            list.map(obj => {
+                isbnList.push(obj.id_book)
+            })
+            console.log(isbnList);
+            
+            let promises = []
+            promises = isbnList.map(async (isbn) => {
+                const book = await getBookByIsbn(isbn)
+                books.push(book)
+            })
+            await Promise.all(promises)
+            return res.status(200).send(books)
+        }
+    )
+    .catch((err) => {
+        return res.status(500).json({
+            ok: false,
+            msg: "Error en el servidor",
+            err
+        })
+    })
+}
+
+module.exports = {createUserBooks, getUserBooks}
