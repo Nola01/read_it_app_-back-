@@ -38,6 +38,37 @@ const getAllUsers = (req, res) => {
     
 }
 
+const getAllStudents = (req, res) => {
+
+    // try {
+        // const db = createConnection();
+        
+        db.select('*').from('users').where('role', 'alumno')
+        .then(
+            (users) => {
+                return res.status(200).send(users)
+            }
+        )
+        .catch((err) => {
+            return res.status(500).json({
+                ok: false,
+                msg: "Error en el servidor",
+            })
+        })
+        // .finally(() => {
+        //     db.destroy().then(() => {
+        //         console.log('Conexión cerrada');
+        //     });
+        // })
+    // } catch (error) {
+    //     return res.status(500).json({
+    //         ok: false,
+    //         msg: "Error al conectar con el servidor",
+    //     })
+    // }
+    
+}
+
 const getUserById = (req, res) => {
     const {id} = req.params;
 
@@ -223,4 +254,4 @@ const createUser = async (req, res) => {
 //     )
 // }
 
-module.exports = {getAllUsers, getUserById, loginUser, createUser};
+module.exports = {getAllUsers, getAllStudents, getUserById, loginUser, createUser};
