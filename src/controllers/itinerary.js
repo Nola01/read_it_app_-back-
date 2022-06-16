@@ -318,13 +318,15 @@ const updateItinerary = async (req, res) => {
 
     const initItinerary = await getItineraryById(id)
 
+    console.log(initItinerary);
+
     /**
         Inicializamos por defecto los campos del nuevo itinerario que vamos a actualizar 
         con los valores que ya tiene en la bd, de esta manera si el usuario no actualiza alguno
         de ellos (no viene en el body), ninguno tendrá nunca valor 'undefined', lo que puede
         provocar conflictos al usar la funcion update()/insert() más adelante
     */
-    const {name = initItinerary[0].name, department = initItinerary[0].department, endDate = initItinerary[0].endDate} = req.body;
+    const {name = initItinerary[0].name, department = initItinerary[0].department, id_group = initItinerary[0].id_group, endDate = initItinerary[0].endDate} = req.body;
     let {books, students} = req.body;
 
     // Si no existe una lista de libros en el body, la inicializamos como una lista vacía
@@ -342,7 +344,7 @@ const updateItinerary = async (req, res) => {
         Creamos el nuevo itinerario que se insertará en la tabla 'itineraries'.
         Si en el body no viene ninguno de los siguientes campos no se cambia ningún registro
     */
-    const itineraryUpdate = new Itinerary(name, department, id_teacher = initItinerary[0].id_teacher, endDate);
+    const itineraryUpdate = new Itinerary(name, department, id_teacher = initItinerary[0].id_teacher, id_group, endDate);
 
     db('itineraries').where('id_itinerary', id)
     .then(
@@ -351,6 +353,8 @@ const updateItinerary = async (req, res) => {
             if(itineraries.length !== 0) {
                 const itinerary = itineraries[0];
                 // console.log(itinerary.id_itinerary);
+
+                let errorList = []
 
                 let id_itinerary = itinerary.id_itinerary
 
@@ -371,7 +375,7 @@ const updateItinerary = async (req, res) => {
                     }
                 )
                 .catch(err => {
-                    return res.status(400).json({
+                    errorList.push({
                         ok: false,
                         msg: 'Error al actualizar itinerario',
                         err
@@ -382,7 +386,7 @@ const updateItinerary = async (req, res) => {
 
                 let responseBooksList = []
                 let responseStudentsList = []
-                let errorList = []
+                
                 
                 if (books.length !== 0) {
                     updateBooks(req, res, id_itinerary, books)
@@ -393,7 +397,7 @@ const updateItinerary = async (req, res) => {
                     );
                 } else { // Si la lista de libros en el body está vacía
                     // console.log('vacio');
-                    return res.status(400).json({
+                    errorList.push({
                         ok: false,
                         msg: "El itinerario debe tener como mínimo un libro",
                     })
@@ -430,7 +434,7 @@ const updateItinerary = async (req, res) => {
                         }
                     );
                 } else {
-                    return res.status(400).json({
+                    errorList.push({
                         ok: false,
                         msg: "El itinerario debe tener como mínimo un alumno",
                     })
