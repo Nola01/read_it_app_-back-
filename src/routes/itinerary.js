@@ -3,11 +3,13 @@ const {check} = require('express-validator');
 const {validateFields, validateItinerary, validateUserToken} = require('../middleware/validator');
 const {validateJWT} = require('../middleware/validate-token');
 
-const {getAllItineraries, createItinerary, deleteItinerary, updateItinerary} = require('../controllers/itinerary')
+const {getAllItineraries, getItineraryByIdRes, createItinerary, deleteItinerary, updateItinerary} = require('../controllers/itinerary')
 
 const router = Router()
 
 router.get('/', getAllItineraries);
+
+router.get('/:id', getItineraryByIdRes);
 
 router.post('/new', 
     [

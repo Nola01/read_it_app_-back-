@@ -183,6 +183,27 @@ const getItineraryById = async (itineraryId) => {
 
 }
 
+const getItineraryByIdRes = async (req, res) => {
+
+    const {id} = req.params;
+
+    return db.select('*').from('itineraries').where('id_itinerary', id)
+    .then(
+        (itineraries) => {
+            if(itineraries.length !== 0) {
+                const itinerary = itineraries[0];
+                return res.status(200).send(itinerary)
+            } else {
+                return res.status(404).json({
+                    ok: false,
+                    msg: "El itinerario no existe",
+                })
+            }
+        }
+    )
+
+}
+
 
 const createItinerary = (req, res) => {
 
@@ -482,4 +503,4 @@ const updateItinerary = async (req, res) => {
     
 }
 
-module.exports = {getAllItineraries, createItinerary, deleteItinerary, updateItinerary};
+module.exports = {getAllItineraries, getItineraryByIdRes, createItinerary, deleteItinerary, updateItinerary};
