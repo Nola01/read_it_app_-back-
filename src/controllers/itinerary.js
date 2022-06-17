@@ -187,12 +187,97 @@ const getItineraryByIdRes = async (req, res) => {
 
     const {id} = req.params;
 
+    
+    
+
     return db.select('*').from('itineraries').where('id_itinerary', id)
     .then(
-        (itineraries) => {
+        async (itineraries) => {
             if(itineraries.length !== 0) {
+                const response = [];
+
+                let promises = []
+
                 const itinerary = itineraries[0];
-                return res.status(200).send(itinerary)
+
+                promises = itineraries.map(async (itinerary) => {
+                    const obj = {itinerary}
+    
+                    await db('users').where('id_user', itinerary.id_teacher)
+                    .then(
+                        (users) => {
+                            if(users.length !== 0) {
+                                const teacher = users[0];
+                                obj.teacher = teacher;
+                            }
+                        }
+                    )
+                    .catch((err) => {
+                        return res.status(500).json({
+                            ok: false,
+                            msg: "Error en el servidor",
+                        })
+                    });
+    
+                    await db('itineraries_books').where('id_itinerary', itinerary.id_itinerary)
+                    .then(
+                        async itineraryBooksList => {
+                            const idList = []
+                            itineraryBooksList.map(obj => {
+                                idList.push(obj.id_itinerary)
+                            })
+    
+                            let promises = [...idList]
+    
+                            promises = idList.map(async (id) => {
+                                return getItineraryBooks(id).then(books => {
+                                    obj.books = books
+                                })
+                            })
+    
+                            // console.log(promesas);
+                            await Promise.all(promises)
+                            }
+                    )
+    
+                    await db('itineraries_students').where('id_itinerary', itinerary.id_itinerary)
+                    .then(
+                        async itineraryStudentsList => {
+                        
+                            const idList = []
+                            itineraryStudentsList.map(obj => {
+                                idList.push(obj.id_itinerary)
+                            })
+        
+                            let promises = [...idList]
+        
+                            promises = idList.map(async (id) => {
+                                return getItineraryStudents(id).then(students => {
+                                    obj.students = students
+                                })
+                            })
+        
+                            await Promise.all(promises)
+        
+                            
+                        }
+                    )
+    
+                    // console.log('obj', obj);
+    
+                    response.push(obj)
+    
+                    // console.log('response', response);
+    
+    
+                    //console.log('RESPONSE', response);
+    
+                    
+                })
+                await Promise.all(promises)
+
+
+                return res.status(200).send(response)
             } else {
                 return res.status(404).json({
                     ok: false,
