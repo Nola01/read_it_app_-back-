@@ -1,12 +1,12 @@
 <center>
 
-# **PROYECTO DESARROLLO DE APLICACIONES MULTIPLATAFORMA**  
+# **PROYECTO FINAL DESARROLLO DE APLICACIONES MULTIPLATAFORMA**  
 
 </center>
 
 <center> 
 
-  <img src="../LOGO%20DEPARTAMENTO.png"/>
+  <img src="/README/LOGO%20DEPARTAMENTO.png"/>
 
 </center>
 
@@ -24,7 +24,7 @@
 
 </center>  
 
-- [**PROYECTO DESARROLLO DE APLICACIONES MULTIPLATAFORMA**](#proyecto-desarrollo-de-aplicaciones-multiplataforma)
+- [**PROYECTO FINAL DESARROLLO DE APLICACIONES MULTIPLATAFORMA**](#proyecto-final-desarrollo-de-aplicaciones-multiplataforma)
 - [**ÍNDICE**](#índice)
 - [**INTRODUCCIÓN**](#introducción)
 - [**REQUISITOS**](#requisitos)
@@ -41,7 +41,9 @@
   - [<img src="https://skillicons.dev/icons?i=vscode"/> **Visual Studio Code**](#-visual-studio-code)
 - [**DISEÑO**](#diseño)
   - [**Tabla REST**](#tabla-rest)
+  - [**Diagrama de arquitectura**](#diagrama-de-arquitectura)
   - [**Diagrama entidad-relación**](#diagrama-entidad-relación)
+  - [**Diagrama casos de uso**](#diagrama-casos-de-uso)
   - [**Aclaraciones sobre el código**](#aclaraciones-sobre-el-código)
 - [**CONCLUSIÓN**](#conclusión)
   - [✅ **Objetivos implementados**](#-objetivos-implementados)
@@ -59,9 +61,7 @@
 
 Todos los años en muchos cursos de primaria, ESO o Bachillerato, los alumnos deben leer una serie de libros que el profesor asigna durante el curso. Pueden ser libros de cualquier materia, aunque si es cierto que normalmente los libros se asignan desde la asignatura de lengua.
 
-&nbsp;
-
-La lectura es algo fundamental en el desarrollo personal e intelectual del alumno, y esta app es una oportunidad para conseguir una mejor gestión de esa lectura de forma digital e intuitiva tanto para el profesor como para los alumnos. De este modo, los profesores pueden asignar libros a los alumnos a través de itinerarios (grupos de libros)
+La lectura es algo fundamental en el desarrollo personal e intelectual del alumno, y esta app es una oportunidad para conseguir una mejor gestión de esa lectura de forma digital e intuitiva tanto para el profesor como para los alumnos. De este modo, los profesores pueden asignar libros a los alumnos a través de itinerarios (grupos de libros).
 
 Este proyecto consta de un frontend (React Native) y un backend (NodeJS y MySQL):
 - [Aplicación móvil (Frontend)](https://gitlab.iesvirgendelcarmen.com/Nola/programa-lector "Read It App")
@@ -86,18 +86,18 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
 
   2. Profesores:
       - Crear, consultar, actualizar y eliminar itinerarios (CRUD). Sólo se mostrarán los itinerarios que ha creado el profesor que está identificado en la app en ese momento.
+      - Filtrar itinerarios por nombre y departamento.
       - Crear, consultar, actualizar y eliminar libros (CRUD). Se mostrarán todos los libros registrados en la base de datos.
+      - Filtrar libros por isbn, nombre o autor.
       - Consultar la lista de alumnos registrados.
       - Filtrar alumnos por nombre.
       - Consultar su perfil con información básica (nombre completo y correo electrónico).
   
-  3. Administrador:
+  3. Administrador (base de datos):
       - Crear, consultar, actualizar y eliminar cualquier itinerario (CRUD).
       - Crear, consultar, actualizar y eliminar cualquier libro (CRUD).
       - Crear, consultar, actualizar y eliminar cualquier usuario (CRUD) , ya sea alumno o profesor.
       - Crear, consultar, actualizar y eliminar grupos (CRUD).
-
-&nbsp;
 
 ## **No funcionales**
   
@@ -126,8 +126,6 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
 
 - Para más información puedes visitar la [documentación oficial](https://developer.mozilla.org/es/docs/Web/JavaScript "Documentación JavaScript")
 
-&nbsp;
-
 
 ## <img src="https://skillicons.dev/icons?i=mysql"/> **MySQL**
 
@@ -137,9 +135,6 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
   - [MySQL](https://www.mysql.com/ "Web MySQL")
   - [PhpMyAdmin](https://www.phpmyadmin.net/ "Web PhpMyAdmin")
 
-&nbsp;
-
-&nbsp;
 
 ## <img src="https://skillicons.dev/icons?i=nodejs,express"/> **NodeJS/Express**
 
@@ -149,17 +144,16 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
 
 - Node es una tecnología que hemos trabajado al final del segundo trimestre en este curso, y el principal motivo de su uso en este proyecto es que me parecía mas práctico que otras tecnologías que conozco como, por ejemplo, Spring Boot. Esto se debe principalmente al lenguaje de programación en el que trabaja (JavaScript), el cual también he aprendido este pasado curso y me ha atraido más.
 
-&nbsp;
+- Para más información puedes consultar la [documentación oficial](https://nodejs.org/es/ "Documentación NodeJS")
 
 ## <img src="https://skillicons.dev/icons?i=docker"/> **Docker**
 
 - Docker es un proyecto de código abierto que automatiza el despliegue de aplicaciones dentro de contenedores de software, proporcionando una automatización de virtualización de aplicaciones en múltiples sistemas operativos
 
-- Aunque no conozco todo sobre Docker, desde mi experiencia me ha parecido una herramienta super útil para poder desarrollas mi backend de manera rápida y sencilla.
+- Aunque no conozco todo sobre Docker, desde mi experiencia me ha parecido una herramienta super útil para poder desarrollar mi backend de manera rápida y sencilla.
 
 - Para más información puedes visitar la [documentación oficial](https://www.docker.com/ "Documentación Docker")
 
-&nbsp;
 
 ## <img src="https://skillicons.dev/icons?i=react"/> **React Native**
 
@@ -168,10 +162,7 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
 - He utilizado esta tecnología porque la he conocido en este curso y, aunque no la ví tan a fondo como React, son similares (como he comentado anteriormente), solo que se adapta para ejecutarse en plataformas móviles nativas. Además, me ha llamado la atención por la variedad de posibilidades que ofrece y el lenguaje de programación que trabaja (JavaScript), que es uno de mis favoritos. Por esto he decidido estudiar este framework más a fondo y desarrollar mi aplicación con él.
   
 - Para más información puedes visitar la [documentación oficial](https://reactnative.dev/ "Documentación React Native"). 
-
-&nbsp;
-
-&nbsp;
+  
 
 ## <img src="https://skillicons.dev/icons?i=css"/> **CSS**
 
@@ -181,7 +172,6 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
   
 - Para más información puedes visitar la [documentación oficial](https://developer.mozilla.org/es/docs/Web/CSS "Documentación CSS").
 
-&nbsp;
 
 ## <img src="https://skillicons.dev/icons?i=gitlab"/> **Gitlab**
 
@@ -191,7 +181,7 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
   
 - Para más información puedes visitar la [documentación oficial](https://about.gitlab.com/ "Documentación Gitlab").
 
-&nbsp;
+
 
 ## <img src="https://skillicons.dev/icons?i=vscode"/> **Visual Studio Code**
 
@@ -212,8 +202,16 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
 
 <center> 
 
-  <img src="../restTable1.png"/>
-  <img src="../restTable2.png"/>
+  <img src="/README/restTable1.png"/>
+  <img src="/README/restTable2.png"/>
+
+</center>
+
+## **Diagrama de arquitectura**
+
+<center> 
+
+  <img src="/README/Diagrama%20arquitectura.png"/>
 
 </center>
 
@@ -221,9 +219,26 @@ Esta aplicación consta de una pantalla para iniciar sesión (acción obligatori
 
 <center> 
 
-  <img src="../Diagrama%20E-R.jpeg"/>
+  <img src="/README/Diagrama%20E-R.jpeg"/>
 
 </center>
+
+
+## **Diagrama casos de uso**
+
+
+<center> 
+
+  <img src="/README/Casos%20de%20uso-profesor.png"/>
+
+</center>
+
+<center> 
+
+  <img src="/README/Casos%20de%20uso-alumno.png"/>
+
+</center>
+
 
 ## **Aclaraciones sobre el código**
 
@@ -293,6 +308,7 @@ En conclusión, he creado una aplicación con las funcionalidades necesarias par
 
 - ✅ Insertar imágenes desde la cámara o la galería del usuario.
 
+- ✅ Implementar una barra de búsqueda para filtrar itinerarios, libros y alumnos.
   
 ## ❌ **Objetivos por implementar**
 
@@ -312,7 +328,9 @@ En conclusión, he creado una aplicación con las funcionalidades necesarias par
 
 ## 📜 **Opinión personal**
 
-- En resumen, el proyecto me ha gustado bastante. La idea original era hacer una aplicación para gestionar la lectura de los alumnos del centro (IES Virgen del Carmen), pero finalmente se ha desarrollado con la intención de utilizarla no solo aquí, sino en cualquier contexto educativo.
+- En resumen, la idea del proyecto y su desarrollo me han gustado bastante. La idea original era hacer una aplicación para gestionar la lectura de los alumnos del centro (IES Virgen del Carmen), pero finalmente se ha desarrollado con la intención de utilizarla no solo aquí, sino en cualquier contexto educativo.
+
+- Ha sido una experiencia muy positiva tanto para mi futuro laboral como para mi desarrollo personal y técnico, ya que me he encontrado con retos muy interesantes durante el desarrollo.
 
 - He aprendido cosas nuevas sobre las tecnologías que he empleado en este proyecto a pesar de que ya las conocía. En general, de lo que más he aprendido es de la experiencia de desarrollar un proyecto más grande desde cero, y mejorar la estructura del código y los ficheros.
 
