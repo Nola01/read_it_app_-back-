@@ -13,7 +13,7 @@
 
 <center>
 
-**JUAN MARÍA NOLASCO ROMERO**  
+**Nola01 (Github)**  
 **CURSO 2021/2022**
 
 </center>  
